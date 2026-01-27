@@ -1,0 +1,23 @@
+{
+    "name": "Motion Framework",
+    "version": "0.0.1",
+    "description": "Autonomous robot framework",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MeYaKo98/Motion.git"
+    },
+    "build":
+    {
+        "flags": "-I include"
+    },
+    "authors": [
+        {
+            "name": "Mohamed Yassine Koubaa",
+            "email": "mohamed.yassine.koubaa@gmail.com",
+            "maintainer": true
+        }
+    ],
+    "license": "",
+    "frameworks": "arduino",
+    "platforms": "espressif32"
+}
