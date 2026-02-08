@@ -12,6 +12,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "Core/Robot/Util.h"
+#include "Core/Diagnostics/Logger.h"
 
 namespace Motion::Core::Robot {
 
