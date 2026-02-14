@@ -1,25 +1,25 @@
 /**
- * @file TolarenceStopCondition.cpp
- * @brief  A stop condition conditon that returns true if error is under tolarence value.
+ * @file TolerenceStopCondition.cpp
+ * @brief  A stop condition conditon that returns true if error is under tolerence value.
  */
 
-#include "Core/Robot/StopCondition/TolarenceStopCondition.h"
+#include "Core/Robot/StopCondition/TolerenceStopCondition.h"
 
 namespace Motion::Core::Robot {
 
-TolarenceStopCondition::TolarenceStopCondition(float tolerence) : _tolarence(abs(tolerence)) {
-    if (_tolarence == 0.0) LOG_ERROR("Tolarence cannot be zero");
+TolerenceStopCondition::TolerenceStopCondition(float tolerence) : _tolerence(abs(tolerence)) {
+    if (_tolerence == 0.0) LOG_ERROR("Tolerence cannot be zero");
 }
 
-TolarenceStopCondition::~TolarenceStopCondition() = default;
+TolerenceStopCondition::~TolerenceStopCondition() = default;
 
-bool TolarenceStopCondition::ShouldExit(float error) {
-    if (abs(error)<_tolarence)
+bool TolerenceStopCondition::ShouldExit(float error) {
+    if (abs(error)<_tolerence)
         return true;
     else
         return false;
 }
 
-void  TolarenceStopCondition::Reset() {}
+void  TolerenceStopCondition::Reset() {}
 
 }

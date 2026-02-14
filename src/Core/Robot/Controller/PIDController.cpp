@@ -1,5 +1,5 @@
 /**
- * @file PIDCOntroller.cpp
+ * @file PIDController.cpp
  * @brief  A closed loop PID controller for Actuator.
  */
 

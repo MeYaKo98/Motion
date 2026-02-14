@@ -1,5 +1,5 @@
 /**
- * @file AndStopCondiiton.cpp
+ * @file AndStopCondition.cpp
  * @brief A class for applying AND logical operation on a group of stop condition.
  */
 
