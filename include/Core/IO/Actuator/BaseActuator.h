@@ -5,7 +5,8 @@
 
 #pragma once
 
-#include "Core\IO\Actuator\IActuator.h"
+#include "Core/IO/Actuator/IActuator.h"
+#include "Core/IO/typeNameUtil.h"
 #include <string.h>
 
 namespace Motion::Core::IO {
@@ -24,7 +25,7 @@ public:
      * @note The actuator type is initialized to "tobeupdated" and the data size is set to sizeof(T).*
      * @todo implement auto type name
      */
-    explicit BaseActuator(const char* name) : IActuator(name, "tobeupdated", sizeof(T)) {}
+    explicit BaseActuator(const char* name) : IActuator(name, get_typename<T>(), sizeof(T)) {}
 
     /**
      * @brief Sets and sends a command to the actuator.

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core\IO\Actuator\GenericMotor.h"
+#include "Core/IO/Actuator/GenericMotor.h"
 
 namespace Motion::Core::IO {
 

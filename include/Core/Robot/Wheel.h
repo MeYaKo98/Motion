@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/IO/Sensor/GenericEncoder.h"
+#include "Core/Diagnostics/Logger.h"
 #include <math.h>
 
 namespace Motion::Core::Robot {
@@ -29,7 +30,11 @@ public:
      *          `Wheel` instance to avoid dangling pointers.
      */
     Wheel(IO::GenericEncoder* encoder, int16_t resolution, float radius)
-        : _encoder(encoder), _resolution(resolution), _radius(radius) {}
+        : _encoder(encoder), _resolution(abs(resolution)), _radius(abs(radius)) {
+            if (_encoder == nullptr) LOG_ERROR("Encoder can not be NULL");
+            if (_resolution == 0) LOG_ERROR("Resolution cannot be zero");
+            if (_radius == 0.0) LOG_ERROR("Radius cannot be zero");
+        }
 
     /**
      * @brief Destroys the Wheel object.

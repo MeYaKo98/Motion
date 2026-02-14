@@ -3,7 +3,7 @@
  * @brief Implementation of the ORStopCondition class for applying OR logical operations on a group of stop conditions.
  */
 
-#include "Core\Robot\StopCondition\ORStopCondition.h"
+#include "Core/Robot/StopCondition/ORStopCondition.h"
 
 namespace Motion::Core::Robot {
 

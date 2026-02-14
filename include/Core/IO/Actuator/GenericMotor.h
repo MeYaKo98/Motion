@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Core\IO\Actuator\BaseActuator.h"
+#include "Core/IO/Actuator/BaseActuator.h"
 
 namespace Motion::Core::IO {
 

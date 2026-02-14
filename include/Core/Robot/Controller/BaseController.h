@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "Core/Diagnostics/Logger.h"
+
 namespace Motion::Core::Robot {
 
 /**
@@ -21,7 +23,9 @@ public:
      * @param minCommand The minimum allowable output command value.
      * @note The concrete implementation is responsible for enforcing these limits within `GenerateCommand`.
      */
-    BaseController(float maxCommand, float minCommand) : _maxCommand(maxCommand), _minCommand(minCommand)  {}
+    BaseController(float maxCommand, float minCommand) : _maxCommand(maxCommand), _minCommand(minCommand)  {
+        if (_maxCommand < _minCommand) LOG_ERROR ("Min and Max values are invalid"); 
+    }
 
     /**
      * @brief Virtual destructor for the BaseController.

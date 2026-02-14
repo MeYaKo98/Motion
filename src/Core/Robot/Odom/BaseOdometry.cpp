@@ -3,14 +3,25 @@
  * @brief A speed profile generator that returns constant speed.
  */
 
-#include "Core\Robot\Odom\BaseOdometry.h"
+#include "Core/Robot/Odom/BaseOdometry.h"
 
 namespace Motion::Core::Robot {
 
-BaseOdometry::BaseOdometry() : _started(false), _odometryFrequency(1000), _odomTaskHandler(nullptr), _position({0.0f, 0.0f, 0.0f}) {}
+BaseOdometry::BaseOdometry() 
+    :_started(false), _odometryFrequency(1000), _odomTaskHandler(nullptr),
+    _position({0.0f, 0.0f, 0.0f}), _positionMutex(nullptr) {
+    // Create binary semaphore (mutex) for thread-safe position access
+    _positionMutex = xSemaphoreCreateMutex();
+    if (_positionMutex == nullptr) {
+        LOG_ERROR("Failed to create position mutex");
+    }
+}
 
 BaseOdometry::~BaseOdometry() {
     Stop();
+    if (_positionMutex != nullptr) {
+        vSemaphoreDelete(_positionMutex);
+    }
 }
 
 void BaseOdometry::Start(uint16_t odometryFrequency) {
@@ -44,26 +55,37 @@ void BaseOdometry::OdometryTask(void* pvParameters) {
     }
 }
 
-Position BaseOdometry::GetPosition(){
+Position BaseOdometry::GetPosition() {
+    // Combine null check and semaphore take for cleaner flow
+    if (_positionMutex != nullptr && xSemaphoreTake(_positionMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+        Position result = _position;
+        xSemaphoreGive(_positionMutex);
+        return result;
+    }
+
+    LOG_WARN("BaseOdometry: Failed to lock position for reading");
     return _position;
 }
 
-bool BaseOdometry::SetPosition(Position newPosition){
-    if (_started) {
-        LOG_ERROR("Odometry already started. SetPosition aborted!");
-        return false;
+bool BaseOdometry::SetPosition(const Position& newPosition) {
+    if (_positionMutex == nullptr) return false;
+
+    if (xSemaphoreTake(_positionMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+        _position = newPosition;
+        xSemaphoreGive(_positionMutex);
+        return true;
     }
-    _position = newPosition;
-    return true;
+
+    LOG_ERROR("BaseOdometry: Failed to lock position for writing");
+    return false;
 }
 
 void BaseOdometry::Stop() {
-    if (_odomTaskHandler != nullptr)
-    {
+    if (_odomTaskHandler != nullptr) {
         vTaskDelete(_odomTaskHandler);
         _odomTaskHandler = nullptr;
         _started = false;
-        LOG_ERROR("Odometry stopped");
+        LOG_INFO("Odometry stopped");
     }
 }
 

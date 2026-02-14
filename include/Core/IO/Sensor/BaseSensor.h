@@ -5,7 +5,8 @@
 
 #pragma once
 
-#include "Core\IO\Sensor\ISensor.h"
+#include "Core/IO/Sensor/ISensor.h"
+#include "Core/IO/typeNameUtil.h"
 #include <string.h>
 
 namespace Motion::Core::IO {
@@ -25,7 +26,7 @@ public:
      * @param name A human-readable unique identifier for the sensor (e.g., "Left Encoder").
      * @todo implement auto type name
      */
-    explicit BaseSensor(const char* name) : ISensor(name, "tobeupdated", sizeof(T)) {}
+    explicit BaseSensor(const char* name) : ISensor(name, get_typename<T>(), sizeof(T)) {}
 
     /**
      * @brief Retrieves the latest reading from the sensor.

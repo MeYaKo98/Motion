@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Core\Robot\Navigation\GenericDifferentialDriveNavigation.h"
+#include "Core/Robot/Navigation/GenericDifferentialDriveNavigation.h"
 
 namespace Motion::Core::Robot {
 

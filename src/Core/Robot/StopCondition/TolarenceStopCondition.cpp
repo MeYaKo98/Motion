@@ -3,11 +3,13 @@
  * @brief  A stop condition conditon that returns true if error is under tolarence value.
  */
 
-#include "Core\Robot\StopCondition\TolarenceStopCondition.h"
+#include "Core/Robot/StopCondition/TolarenceStopCondition.h"
 
 namespace Motion::Core::Robot {
 
-TolarenceStopCondition::TolarenceStopCondition(float tolerence) : _tolarence(abs(tolerence)) {}
+TolarenceStopCondition::TolarenceStopCondition(float tolerence) : _tolarence(abs(tolerence)) {
+    if (_tolarence == 0.0) LOG_ERROR("Tolarence cannot be zero");
+}
 
 TolarenceStopCondition::~TolarenceStopCondition() = default;
 

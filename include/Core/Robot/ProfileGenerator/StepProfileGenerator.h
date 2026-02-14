@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "Core\Robot\ProfileGenerator\BaseProfileGenerator.h"
+#include "Core/Robot/ProfileGenerator/BaseProfileGenerator.h"
+#include "Core/Diagnostics/Logger.h"
 #include <cmath>
 
 namespace Motion::Core::Robot {

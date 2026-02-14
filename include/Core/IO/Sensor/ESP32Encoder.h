@@ -10,6 +10,7 @@
 #include "Arduino.h"
 #include "driver/pcnt.h"
 #include "driver/periph_ctrl.h"
+#include <atomic>
 
 namespace Motion::Core::IO {
 
@@ -67,9 +68,8 @@ private:
 
     /**
      * @brief Counter for hardware timer overflows to extend range beyond 16-bit.
-     * @todo add thread safety
      */
-    int8_t _overflowCounter;
+    std::atomic<int16_t> _overflowCounter;
 
     /**
      * @brief Checks for a free PCNT unit and allocates it.

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Core\IO\Actuator\GenericDCMotor.h"
+#include "Core/IO/Actuator/GenericDCMotor.h"
 #include "Arduino.h"
 
 namespace Motion::Core::IO {

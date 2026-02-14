@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "Core\Robot\Odom\BaseOdometry.h"
-#include "Core\Robot\Wheel.h"
+#include "Core/Robot/Odom/BaseOdometry.h"
+#include "Core/Robot/Wheel.h"
 
 namespace Motion::Core::Robot {
 
@@ -39,23 +39,26 @@ public:
      * @param leftWheel Pointer to the left wheel object. Must not be nullptr.
      * @warning The caller is responsible for ensuring the Wheel pointers remain valid for the lifetime of this object.
      */
-    explicit GenericDifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel) :
-        _wheelSpacing(wheelSpacing), _rightWheel(rightWheel), _leftWheel(leftWheel), _state({0.0f, 0.0f, 0.0f, 0.0f}) {}
+    explicit GenericDifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel);
 
     /**
      * @brief Destroys the GenericDifferentialDriveOdometry object.
      */
-    ~GenericDifferentialDriveOdometry() = default;
+    ~GenericDifferentialDriveOdometry();
 
     /**
      * @brief Retrieves the current state of the differential drive wheels.
      * @return DifferentialDriveState A struct containing distances and speeds for both wheels.
      */
-    DifferentialDriveState GetState() {return _state;}
-
-private:
+    DifferentialDriveState GetState();
 
 protected:
+    /**
+     * @brief Set the current state of the differential drive wheels.
+     * @param newState DifferentialDriveState A struct containing distances and speeds for both wheels.
+     */
+    bool SetState(const DifferentialDriveState& newstate);
+
     /** @brief The distance between wheels. */
     float _wheelSpacing;
     /** @brief Pointer to the right wheel instance. */
@@ -63,10 +66,16 @@ protected:
     /** @brief Pointer to the left wheel instance. */
     Wheel* _leftWheel;
   
-    /** @brief The current internal state of the drive. 
-     * @todo add thread safety
+private:
+    /** 
+     * @brief The current internal state of the drive. 
      */
     DifferentialDriveState _state;
+
+    /**
+     * @brief Protect access to the state (set and get).
+     */
+    SemaphoreHandle_t _stateMutex;
 };
 
 } // namespace Motion::Core::Robot

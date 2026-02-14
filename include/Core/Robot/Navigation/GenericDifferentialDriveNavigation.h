@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "Core\Robot\Navigation\BaseNavigation.h"
-#include "Core\Robot\Odom\GenericDifferentialDriveOdometry.h"
-#include "Core\Robot\Controller\BaseController.h"
-#include "Core\IO\Actuator\GenericMotor.h"
+#include "Core/Robot/Navigation/BaseNavigation.h"
+#include "Core/Robot/Odom/GenericDifferentialDriveOdometry.h"
+#include "Core/Robot/Controller/BaseController.h"
+#include "Core/IO/Actuator/GenericMotor.h"
 
 namespace Motion::Core::Robot {
 
@@ -52,7 +52,13 @@ public:
      *          that these objects remain valid for the lifetime of this navigation instance.
      */
     explicit GenericDifferentialDriveNavigation(GenericDifferentialDriveOdometry* odometry, BaseProfileGenerator* profileGenerator, BaseStopCondition* stopCondition, DifferentialDriveMotorConfig motorConfig)
-        : _odometry(odometry), _motorConfig(motorConfig), BaseNavigation(profileGenerator, stopCondition) {}
+        : _odometry(odometry), _motorConfig(motorConfig), BaseNavigation(profileGenerator, stopCondition) {
+            if (_odometry == nullptr) LOG_ERROR("Odometry can not be NULL");
+            if (_motorConfig.leftController == nullptr) LOG_ERROR("Left Controller can not be NULL");
+            if (_motorConfig.leftMotor == nullptr) LOG_ERROR("Left Motor can not be NULL");
+            if (_motorConfig.rightController == nullptr) LOG_ERROR("Right Controller can not be NULL");
+            if (_motorConfig.rightMotor == nullptr) LOG_ERROR("Right Motor can not be NULL");
+        }
 
     /**
      * @brief Destructor for the GenericDifferentialDriveNavigation object.

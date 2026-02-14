@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "Core/Robot/Util.h"
 #include "Core/Diagnostics/Logger.h"
 
@@ -52,7 +53,7 @@ public:
     /**
      * @brief Get the current robot position.
      * @return Position The current estimated position (x, y, theta) of the robot.
-     * @note This returns a copy of the position structure.
+     * @note This method is thread safe.
      */
     Position GetPosition();
 
@@ -62,8 +63,9 @@ public:
      * @param newPosition The new position to set.
      * @return true if the new position was successfully set.
      * @return false if the operation failed (e.g., mutex timeout).
+     * @note This method is thread safe
      */
-    bool SetPosition(Position newPosition);
+    bool SetPosition(const Position& newPosition);
 
     /**
      * @brief Stop and kill the odometry task.
@@ -105,12 +107,17 @@ protected:
      */
     TaskHandle_t _odomTaskHandler;
 
+private:
     /**
      * @brief The current calculated position of the robot.
      * @note Derived classes should update this member within `OdometryUpdate`.
-     * @todo add thread safety
      */
     Position _position;
+
+    /**
+     * @brief Protect access to the position (set and get).
+     */
+    SemaphoreHandle_t _positionMutex;
 };
 
 } // namespace Motion::Core::Robot

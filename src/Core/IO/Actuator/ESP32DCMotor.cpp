@@ -3,7 +3,7 @@
  * @brief Motor hardware interface for ESP32.
  */
 
-#include "Core\IO\Actuator\ESP32DCMotor.h"
+#include "Core/IO/Actuator/ESP32DCMotor.h"
 
 namespace Motion::Core::IO {
 

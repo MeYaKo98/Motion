@@ -1,10 +1,13 @@
-#include "Core\Robot\ProfileGenerator\TrapezoidalProfileGenerator.h"
+#include "Core/Robot/ProfileGenerator/TrapezoidalProfileGenerator.h"
 #include <cmath>
 
 namespace Motion::Core::Robot {
 
 TrapezoidalProfileGenerator::TrapezoidalProfileGenerator(float acceleration, float velocity)
-    : _acceleration(std::abs(acceleration)), _velocity(std::abs(velocity)) {}
+    : _acceleration(std::abs(acceleration)), _velocity(std::abs(velocity)) {
+        if (_acceleration == 0.0f) LOG_ERROR("Acceleration cannot be zero");
+        if (_velocity == 0.0f) LOG_ERROR("Velocity cannot be zero");
+    }
 
 void TrapezoidalProfileGenerator::GenerateProfile(float distance) {
     _distance = distance;

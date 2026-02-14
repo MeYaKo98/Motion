@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <Core/Diagnostics/Logger.h>
 
 namespace Motion::Core::IO {
 
@@ -34,7 +35,9 @@ public:
      * @note The `name` and `dataType` pointers are stored directly. The caller must ensure
      *       these strings remain valid for the lifetime of this object (typically string literals).
      */
-    explicit IActuator(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {}
+    explicit IActuator(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {
+        if (_name == nullptr) LOG_ERROR("Actuator name must cannot be NULL");
+    }
 
     /**
      * @brief Returns the name of the actuator.
