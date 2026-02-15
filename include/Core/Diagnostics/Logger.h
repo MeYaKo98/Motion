@@ -46,13 +46,15 @@ public:
     /**
      * @brief Initializes the logging system and starts the background logging task.
      * 
-     * @param channel Pointer to the communication channel used for output (e.g., Serial, TCP).
-     *                The logger takes ownership of using this channel but not its memory management.
-     *                Must not be nullptr.
+     * @param channelHandle The communication channel handle used for output (e.g., GenericSerialHandle, GenericTCPHandle).
+     *                      The logger takes ownership of using this channel.
+     *                      Must not be null.
      * @param minLevel The minimum severity level to log. Messages below this level are ignored.
      *                 Defaults to LogLevel::INFO.
      * @param queueSize The maximum number of messages the internal queue can hold.
      *                  Defaults to 30.
+     * 
+     * @return true if the logger is successfully initialized; false otherwise.
      * 
      * @warning This method must be called only once during system initialization.
      * @warning The provided `channel` must be initialized and valid. Passing nullptr will cause a crash.
@@ -60,7 +62,7 @@ public:
      * @remark It is recommended to use the helper macros.
      * @see LOG_START
      */
-    void Start(Motion::Core::IO::BaseChannel* channel, LogLevel minLevel = LogLevel::INFO, uint32_t queueSize = 30);
+    bool Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel minLevel = LogLevel::INFO, uint32_t queueSize = 30);
 
     /**
      * @brief Queues a log message for processing.
@@ -93,7 +95,7 @@ private:
     /**
      * @brief Private constructor to enforce Singleton pattern.
      */
-    Logger() : _output(nullptr), _msgQueue(nullptr), _minLevel(LogLevel::INFO) {}
+    Logger() : _outputHandle(nullptr), _msgQueue(nullptr), _minLevel(LogLevel::INFO) {}
 
     /**
      * @brief The FreeRTOS task function that processes queued log messages.
@@ -119,7 +121,7 @@ private:
      */
     const char* GetLevelLabel(LogLevel level);
 
-    Motion::Core::IO::BaseChannel* _output;
+    Motion::Core::IO::BaseChannelHandle _outputHandle;
     QueueHandle_t _msgQueue;
     LogLevel _minLevel;
 };

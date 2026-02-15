@@ -7,19 +7,27 @@
 
 namespace Motion::Core::Robot {
 
+ORStopCondition::ORStopCondition(BaseStopConditionHandle conditionA, BaseStopConditionHandle conditionB)
+    : _conditionsA(conditionA), _conditionsB(conditionB) {}
+
 ORStopCondition::~ORStopCondition() = default;
 
-bool ORStopCondition::ShouldExit(float error) {
-    for (auto* cond : _conditions) {
-        if (cond->ShouldExit(error)) return true;
-    }
-    return false;
+bool ORStopCondition::ShouldExit(float error)
+{
+    bool retA = _conditionsA->ShouldExit(error);
+    bool retB = _conditionsB->ShouldExit(error);
+    return retA || retB;
 }
 
-void ORStopCondition::Reset() {
-    for (auto* cond : _conditions) {
-        cond->Reset();
-    }
+void ORStopCondition::Reset()
+{
+    _conditionsA->Reset();
+    _conditionsB->Reset();
+}
+
+BaseStopConditionHandle operator||(BaseStopConditionHandle conditionA, BaseStopConditionHandle conditionB) {
+    if (!conditionA || !conditionB) return nullptr;
+    return BaseStopConditionHandle(new ORStopCondition(conditionA, conditionB));
 }
 
 } // namespace Motion::Core::Robot

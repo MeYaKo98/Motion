@@ -17,7 +17,7 @@ namespace Motion::Core::IO {
  *          speed and direction.
  */
 class GenericMotor : public BaseActuator<float> {
-public:
+protected:
     /**
      * @brief Constructs a new GenericMotor object.
      * @param name A human-readable name for the motor, used for identification and debugging.
@@ -26,5 +26,11 @@ public:
      */
     explicit GenericMotor(const char* name) : BaseActuator<float>(name) {}
 };
+
+/**
+ * @relates GenericMotor
+ * @brief Smart handle for Motor instances.
+ */
+using GenericMotorHandle = ActuatorPointer(GenericMotor);
 
 } // namespace Motion::Core::IO

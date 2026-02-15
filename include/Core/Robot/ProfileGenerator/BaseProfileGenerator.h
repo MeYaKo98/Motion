@@ -5,7 +5,15 @@
 
 #pragma once
 
+#include <memory>
+
 namespace Motion::Core::Robot {
+
+#ifdef DOXYGEN
+#define ProfileGeneratorPointer(T) T*
+#else
+#define ProfileGeneratorPointer(T) std::shared_ptr<T>
+#endif
 
 /**
  * @brief Defines the interface for motion profile generators.
@@ -20,11 +28,6 @@ namespace Motion::Core::Robot {
  */
 class BaseProfileGenerator {
 public:
-    /**
-     * @brief Default constructor for the BaseProfileGenerator.
-     */
-    BaseProfileGenerator() {}
-
     /**
      * @brief Virtual destructor to ensure proper cleanup of derived classes.
      * @note As a base class with virtual functions, the destructor must be virtual to allow for
@@ -54,6 +57,14 @@ public:
      *          undefined and should be handled by the implementing class.
      */
     virtual float CalculateValue(float progress) = 0;
+
+protected:
+    /**
+     * @brief Default constructor for the BaseProfileGenerator.
+     */
+    BaseProfileGenerator() {}
 };
+
+using BaseProfileGeneratorHandle = ProfileGeneratorPointer(BaseProfileGenerator);
 
 } // namespace Motion::Core::Robot

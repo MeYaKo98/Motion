@@ -33,7 +33,7 @@ struct EncoderConfig {
  *          It inherits from `BaseSensor<int32_t>`, providing raw count values as 32-bit integers.
  */
 class GenericEncoder : public BaseSensor<int32_t> {
-public:
+protected:
     /**
      * @brief Constructs a new GenericEncoder object.
      * @details Initializes the base sensor with a name and stores the encoder configuration.
@@ -43,14 +43,18 @@ public:
      * @note This constructor does not initialize the hardware peripherals. Hardware setup is typically
      *       performed during a subsequent initialization phase.
      */
-    GenericEncoder(const char* name, EncoderConfig config) : BaseSensor<int32_t>(name), _encoderConfig(config) {};
+    explicit GenericEncoder(const char* name, EncoderConfig config) : BaseSensor<int32_t>(name), _encoderConfig(config) {};
 
-protected:
     /**
      * @brief Internal storage for the encoder configuration.
      */
     EncoderConfig _encoderConfig;
 };
 
+/**
+ * @relates GenericEncoder
+ * @brief Smart handle for Encoder instances.
+ */
+using GenericEncoderHandle = SensorPointer(GenericEncoder);
 
 } // namespace Motion::Core::IO

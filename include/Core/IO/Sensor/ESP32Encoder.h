@@ -20,14 +20,18 @@ namespace Motion::Core::IO {
  *          efficiently. It handles hardware resource allocation and interrupt-based overflow management
  *          to support continuous rotation.
  */
+class ESP32Encoder;
+
+/**
+ * @relates ESP32Encoder
+ * @brief Smart handle for ESP32 Encoder instances.
+ */
+using ESP32EncoderHandle = SensorPointer(ESP32Encoder);
+
 class ESP32Encoder : public GenericEncoder {
 public:
-    /**
-     * @brief Constructs a new ESP32Encoder object.
-     * @param name A human-readable unique identifier (e.g., "Left Encoder").
-     * @param config A structure containing the Encoder configuration (pins, resolution, etc.).
-     */
-    ESP32Encoder(const char* name, EncoderConfig config);
+
+    static ESP32EncoderHandle Create(const char* name, EncoderConfig config);
 
     /**
      * @brief Destroys the ESP32Encoder object.
@@ -50,6 +54,13 @@ public:
     void Stop() override;
 
 protected:
+    /**
+     * @brief Constructs a new ESP32Encoder object.
+     * @param name A human-readable unique identifier (e.g., "Left Encoder").
+     * @param config A structure containing the Encoder configuration (pins, resolution, etc.).
+     */
+    explicit ESP32Encoder(const char* name, EncoderConfig config);
+
     /**
      * @brief Returns the current encoder count in ticks.
      * @details Reads the hardware counter and combines it with the overflow counter.

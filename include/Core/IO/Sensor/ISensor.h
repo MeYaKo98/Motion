@@ -7,8 +7,15 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <memory>
 
 namespace Motion::Core::IO {
+
+#ifdef DOXYGEN
+#define SensorPointer(T) T*;
+#else
+#define SensorPointer(T) std::shared_ptr<T>;
+#endif
 
 /**
  * @brief Non-template base interface for generic sensor management.
@@ -17,26 +24,7 @@ namespace Motion::Core::IO {
  *          the lifecycle methods (Start, Stop) and data retrieval method (GetSerialisedReading).
  */
 class ISensor {
-protected:
-    /** @brief The human-readable name of the sensor. */
-    const char* _name;
-    /** @brief The human-readable description of the data type. */
-    const char* _dataType;
-    /** @brief The size of the data type in bytes. */
-    size_t _typeSize;
-
 public:
-    /**
-     * @brief Constructs a new ISensor object.
-     * @param name A human-readable sensor name.
-     * @param dataType A human-readable description of the sensor data type.
-     * @param typeSize The size of the sensor data type in bytes.
-     * @warning **Pointer Lifetime:** The `name` and `dataType` pointers are stored directly.
-     *          The caller must ensure these strings remain valid for the lifetime of the ISensor object.
-     *          Passing pointers to temporary strings or stack variables that go out of scope will result in undefined behavior.
-     */
-    explicit ISensor(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {}
-
     /**
      * @brief Returns the name of the sensor.
      * @return The human-readable name of the sensor as a C-string.
@@ -93,6 +81,30 @@ public:
      * @details Sensors represent physical hardware and are non-assignable.
      */
     ISensor& operator=(const ISensor&) = delete; // No assignment
+
+
+protected:
+    /**
+     * @brief Constructs a new ISensor object.
+     * @param name A human-readable sensor name.
+     * @param dataType A human-readable description of the sensor data type.
+     * @param typeSize The size of the sensor data type in bytes.
+     * @warning **Pointer Lifetime:** The `name` and `dataType` pointers are stored directly.
+     *          The caller must ensure these strings remain valid for the lifetime of the ISensor object.
+     *          Passing pointers to temporary strings or stack variables that go out of scope will result in undefined behavior.
+     */
+    explicit ISensor(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {}
+
+
+    /** @brief The human-readable name of the sensor. */
+    const char* _name;
+
+    /** @brief The human-readable description of the data type. */
+    const char* _dataType;
+
+    /** @brief The size of the data type in bytes. */
+    size_t _typeSize;
+
 };
 
 } // namespace Motion::Core::IO

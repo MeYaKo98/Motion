@@ -19,13 +19,6 @@ namespace Motion::Core::IO {
 class GenericSerial : public BaseChannel {
 public:
     /**
-     * @brief Default constructor.
-     * @details Initializes a new instance of the `GenericSerial` class.
-     * @param baudRate The baud rate for communication (e.g., 9600, 115200).
-     */
-    GenericSerial(uint32_t baudRate) : _baudRate(baudRate), BaseChannel() {};
-
-    /**
      * @brief Virtual destructor.
      * @details Destroys the `GenericSerial` object.
      *          The default implementation ensures that derived classes are properly destroyed.
@@ -33,7 +26,22 @@ public:
     virtual ~GenericSerial() = default;
 
 protected:
+    /**
+     * @brief Default constructor.
+     * @details Initializes a new instance of the `GenericSerial` class.
+     * @param baudRate The baud rate for communication (e.g., 9600, 115200).
+     */
+    GenericSerial(uint32_t baudRate) : _baudRate(baudRate), BaseChannel() {};
+
+    /**
+     * @brief The baud rate for communication.
+     */
     uint32_t _baudRate;
 };
+
+/**
+ * @brief Defining The Generic Serial handle
+ */
+using GenericSerialHandle = ChannelPointer(GenericSerial);
 
 } // namespace Motion::Core::IO

@@ -12,6 +12,14 @@ PIDController::PIDController(PIDCoefficient coefficient, float max, float min) :
 
 PIDController::~PIDController() {}
 
+PIDControllerHandle PIDController::Create(PIDCoefficient coefficient, float max, float min)
+{
+    if (coefficient.Kp < 0 || coefficient.Ki < 0 || coefficient.Kd < 0) throw std::invalid_argument("Coefficents must be positive");
+    if (coefficient.Kp == 0 && coefficient.Ki == 0 && coefficient.Kd == 0) throw std::invalid_argument("Coefficents must not be all zeros");
+    if (max < min) throw std::invalid_argument("Max must be greater than min");
+    return PIDControllerHandle(new PIDController(coefficient, max, min));
+}
+
 void PIDController::Reset() {
     _lastError = 0;
     _integral = 0;

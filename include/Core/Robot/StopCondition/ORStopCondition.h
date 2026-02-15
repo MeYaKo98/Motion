@@ -21,21 +21,6 @@ namespace Motion::Core::Robot {
 class ORStopCondition : public BaseStopCondition{
 public:
     /**
-     * @brief Constructs an ORStopCondition with a variable number of stop conditions.
-     * @tparam Args Variadic template arguments. Must be pointers to `BaseStopCondition` or derived classes.
-     * @param args A comma-separated list of raw pointers to stop condition objects.
-     * @warning **Memory Management:** This class stores raw pointers. The caller is responsible for managing the lifecycle
-     *          of these objects and ensuring they remain valid for the lifetime of the ORStopCondition instance.
-     *          Passing pointers to temporary objects or stack variables that go out of scope will result in undefined behavior.
-     */
-    template<typename... Args>
-    explicit ORStopCondition(Args... args) {
-        _conditions.reserve(sizeof...(args));
-        int dummy[] = { 0, (_conditions.push_back(args), 0)... };
-        (void)dummy;
-    }
-
-    /**
      * @brief Destroys the ORStopCondition object.
      * @note **No Deallocation:** This destructor does not free the memory of the contained stop condition pointers.
      *       The owner of those pointers is responsible for their cleanup to prevent memory leaks.
@@ -57,11 +42,16 @@ public:
      */
     void Reset() override;
 
-private:
-    /**
-     * @brief A collection of raw pointers to the aggregated stop conditions.
-     */
-    std::vector<BaseStopCondition*> _conditions;
+    friend BaseStopConditionHandle operator||(BaseStopConditionHandle conditionA, BaseStopConditionHandle conditionB);
+
+protected:
+    explicit ORStopCondition(BaseStopConditionHandle conditionA, BaseStopConditionHandle conditionB);
+
+    BaseStopConditionHandle _conditionsA;
+
+    BaseStopConditionHandle _conditionsB;
 };
+
+BaseStopConditionHandle operator||(BaseStopConditionHandle conditionA, BaseStopConditionHandle conditionB);
 
 } // namespace Motion::Core::Robot

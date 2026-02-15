@@ -7,14 +7,24 @@
 
 namespace Motion::Core::Robot {
 
-DifferentialDriveOdometry::DifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel) :
-    GenericDifferentialDriveOdometry(wheelSpacing, rightWheel, leftWheel), _lastRightDistanceRef(0.0f), _lastLeftDistanceRef(0.0f), _velCounter(0) {}
+DifferentialDriveOdometry::DifferentialDriveOdometry(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle) :
+    GenericDifferentialDriveOdometry(wheelSpacing, rightWheelHandle, leftWheelHandle),
+    _lastRightDistanceRef(0.0f), _lastLeftDistanceRef(0.0f), _velCounter(0) {}
 
 DifferentialDriveOdometry::~DifferentialDriveOdometry() {}
 
-void DifferentialDriveOdometry::OdometryUpdate() {
-    float currentDistRight = _rightWheel->getDistance();
-    float currentDistLeft = _leftWheel->getDistance();
+DifferentialDriveOdometryHandle DifferentialDriveOdometry::Create(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle)
+{
+    if (rightWheelHandle == nullptr) throw std::invalid_argument("RightWheelHandle can not be NULL");
+    if (leftWheelHandle == nullptr) throw std::invalid_argument("LeftWheelHandle can not be NULL");
+    if (wheelSpacing == 0.0f) throw std::invalid_argument("WheelSpacing must not be 0.0f");
+    return DifferentialDriveOdometryHandle(new DifferentialDriveOdometry(wheelSpacing, rightWheelHandle, leftWheelHandle));
+}
+
+void DifferentialDriveOdometry::OdometryUpdate()
+{
+    float currentDistRight = _rightWheelHandle->getDistance();
+    float currentDistLeft = _leftWheelHandle->getDistance();
 
     DifferentialDriveState currentState = GetState();
     Position currentPosition = GetPosition();

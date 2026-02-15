@@ -11,13 +11,16 @@ namespace Motion::Core::IO {
 
 class GenericTCP : public BaseChannel {
 public:
-
-    GenericTCP(uint16_t port) : _port(port), BaseChannel() {};
-
     virtual ~GenericTCP() = default;
 
 protected:
+    GenericTCP(uint16_t port) : _port(port), BaseChannel() {};
     uint16_t _port;
 };
+
+/**
+ * @brief Defining The Generic TCP handle
+ */
+using GenericTCPHandle = ChannelPointer(GenericTCP);
 
 } // namespace Motion::Core::IO

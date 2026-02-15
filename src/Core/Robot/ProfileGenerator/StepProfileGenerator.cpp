@@ -7,8 +7,12 @@
 
 namespace Motion::Core::Robot {
 
-StepProfileGenerator::StepProfileGenerator(float speed) : _speed(abs(speed)) {
-    if (_speed == 0.0) LOG_ERROR("Speed cannot be zero");
+StepProfileGenerator::StepProfileGenerator(float speed) : _speed(abs(speed)) {}
+
+StepProfileGeneratorHandle StepProfileGenerator::Create(float speed)
+{
+    if (speed == 0.0) throw std::invalid_argument("Speed cannot be zero");
+    return StepProfileGeneratorHandle(new StepProfileGenerator(speed));
 }
 
 StepProfileGenerator::~StepProfileGenerator() = default;

@@ -5,21 +5,49 @@
 
 namespace Motion::Core::Diagnostics {
 
-void Logger::Start(Motion::Core::IO::BaseChannel* channel, LogLevel minLevel, uint32_t queueSize) {
-    if (_msgQueue != nullptr) return; 
-    
-    _output = channel;
-    _minLevel = minLevel;
-    _msgQueue = xQueueCreate(queueSize, sizeof(LogMessage));
-    
-    if (_msgQueue != nullptr) {
-        xTaskCreatePinnedToCore(LogTask, "LoggerTask", 4096, this, 1, nullptr, 0);
+bool Logger::Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel minLevel, uint32_t queueSize)
+{
+    if (_msgQueue != nullptr)
+    {
+        LOG_WARN("Logger already started!");
+        return true;
     }
-    _output->Start();
+
+    if (!channelHandle)
+    {
+        throw std::invalid_argument("Channel handle cannot be null");
+        return false;
+    }
+    
+    if (!channelHandle->Start())
+    {
+        throw std::runtime_error("Failed to start communication channel");
+        return false;
+    }
+
+    _msgQueue = xQueueCreate(queueSize, sizeof(LogMessage));
+    if (!_msgQueue)
+    {
+        throw std::runtime_error("Failed to create message queue");
+        return false;
+    }    
+
+    _minLevel = minLevel;
+    _outputHandle = channelHandle;
+    
+    if (!xTaskCreatePinnedToCore(LogTask, "LoggerTask", 4096, this, 1, nullptr, 0))
+    {
+        throw std::runtime_error("Failed to create the logger task");
+        return false;
+    }
+
+    return true;
 }
 
-void Logger::Log(LogLevel level, const char* tag, const char* file, int line, const char* format, ...) {
+void Logger::Log(LogLevel level, const char* tag, const char* file, int line, const char* format, ...)
+{
     if (!_msgQueue || level < _minLevel) return;
+    if (!tag || !file || !format) return; 
 
     LogMessage msg;
     uint32_t timestamp = (xPortInIsrContext()) ? 0 : xTaskGetTickCount() * portTICK_PERIOD_MS;
@@ -42,17 +70,21 @@ void Logger::Log(LogLevel level, const char* tag, const char* file, int line, co
     msg.data[totalLen] = '\n';
     msg.length = totalLen + 1;
 
-    if (xPortInIsrContext()) {
+    if (xPortInIsrContext())
+    {
         BaseType_t woken = pdFALSE;
         xQueueSendFromISR(_msgQueue, &msg, &woken);
         if (woken) portYIELD_FROM_ISR();
-    } else {
+    } else
+    {
         xQueueSend(_msgQueue, &msg, 0);
     }
 }
 
-const char* Logger::GetLevelLabel(LogLevel level) {
-    switch (level) {
+const char* Logger::GetLevelLabel(LogLevel level)
+{
+    switch (level)
+    {
         case LogLevel::TRACE: return "TRACE";
         case LogLevel::DEBUG: return "DEBUG";
         case LogLevel::INFO:  return "INFO";
@@ -62,14 +94,15 @@ const char* Logger::GetLevelLabel(LogLevel level) {
     }
 }
 
-void Logger::LogTask(void* pvParameters) {
+void Logger::LogTask(void* pvParameters)
+{
     Logger* self = (Logger*)pvParameters;
     LogMessage receivedMsg;
-    while (true) {
-        if (xQueueReceive(self->_msgQueue, &receivedMsg, portMAX_DELAY) == pdPASS) {
-            if (self->_output) {
-                self->_output->Send((const uint8_t*)receivedMsg.data, receivedMsg.length);
-            }
+    while (true)
+    {
+        if (xQueueReceive(self->_msgQueue, &receivedMsg, portMAX_DELAY) == pdPASS)
+        {
+            self->_outputHandle->Send((const uint8_t*)receivedMsg.data, receivedMsg.length);
         }
     }
 }

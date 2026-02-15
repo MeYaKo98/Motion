@@ -9,11 +9,13 @@ namespace Motion::Core::Robot {
 
 BaseOdometry::BaseOdometry() 
     :_started(false), _odometryFrequency(1000), _odomTaskHandler(nullptr),
-    _position({0.0f, 0.0f, 0.0f}), _positionMutex(nullptr) {
+    _position({0.0f, 0.0f, 0.0f}), _positionMutex(nullptr)
+{
     // Create binary semaphore (mutex) for thread-safe position access
     _positionMutex = xSemaphoreCreateMutex();
-    if (_positionMutex == nullptr) {
-        LOG_ERROR("Failed to create position mutex");
+    if (_positionMutex == nullptr)
+    {
+        throw std::runtime_error("Failed to create position mutex");
     }
 }
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <memory>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -16,6 +17,12 @@
 #include "Core/Diagnostics/Logger.h"
 
 namespace Motion::Core::Robot {
+
+#ifdef DOXYGEN
+#define OdometryPointer(T) T*
+#else
+#define OdometryPointer(T) std::shared_ptr<T>
+#endif
 
 /**
  * @brief An abstract interface for odometry for all drive types.
@@ -25,12 +32,6 @@ namespace Motion::Core::Robot {
  */
 class BaseOdometry {
 public:
-    /**
-     * @brief Construct a new Base Odometry object.
-     * @details Initializes internal state variables. The odometry task is not started until `Start()` is called.
-     */
-    BaseOdometry();
-
     /**
      * @brief Destructor of the Base Odometry object.
      * @details Ensures the odometry task is stopped before destruction to prevent resource leaks or dangling task references.
@@ -93,6 +94,12 @@ private:
 
 protected:
     /**
+     * @brief Construct a new Base Odometry object.
+     * @details Initializes internal state variables. The odometry task is not started until `Start()` is called.
+     */
+    BaseOdometry();
+
+    /**
      * @brief The update frequency in Hz.
      */
     int16_t _odometryFrequency;
@@ -119,5 +126,7 @@ private:
      */
     SemaphoreHandle_t _positionMutex;
 };
+
+using BaseOdometryHandle = OdometryPointer(BaseOdometry);
 
 } // namespace Motion::Core::Robot

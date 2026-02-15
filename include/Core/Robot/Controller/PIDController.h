@@ -27,15 +27,14 @@ struct PIDCoefficient {
  *          between a desired setpoint and a measured process variable, then applies a correction based on
  *          proportional, integral, and derivative terms.
  */
+class PIDController;
+
+using PIDControllerHandle = ControllerPointer(PIDController);
+
 class PIDController : public BaseController {
 public:
-    /**
-     * @brief Constructs a new PID Controller object.
-     * @param coefficient The PID coefficients (Kp, Ki, Kd) to be used for the control loop.
-     * @param max The maximum allowable output value (saturation limit).
-     * @param min The minimum allowable output value (saturation limit).
-     */
-    explicit PIDController(PIDCoefficient coefficient, float max, float min);
+
+    static PIDControllerHandle Create(PIDCoefficient coefficient, float max, float min);
 
     /**
      * @brief Destroys the PID Controller object.
@@ -59,6 +58,14 @@ public:
     float GenerateCommand(float error) override;
 
 protected:
+    /**
+     * @brief Constructs a new PID Controller object.
+     * @param coefficient The PID coefficients (Kp, Ki, Kd) to be used for the control loop.
+     * @param max The maximum allowable output value (saturation limit).
+     * @param min The minimum allowable output value (saturation limit).
+     */
+    explicit PIDController(PIDCoefficient coefficient, float max, float min);
+
     /** @brief The PID coefficients used for control calculations. */
     PIDCoefficient _coefficient;
     /** @brief The error value from the previous cycle, used to calculate the derivative term. */

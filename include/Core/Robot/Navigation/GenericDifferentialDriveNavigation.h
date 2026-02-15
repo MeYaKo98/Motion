@@ -19,13 +19,13 @@ namespace Motion::Core::Robot {
  */
 struct DifferentialDriveMotorConfig {
     /** @brief Pointer to the right motor instance. */
-    Motion::Core::IO::GenericMotor* rightMotor;
+    Motion::Core::IO::GenericMotorHandle rightMotorHandle;
     /** @brief Pointer to the left motor instance. */
-    Motion::Core::IO::GenericMotor* leftMotor;
+    Motion::Core::IO::GenericMotorHandle leftMotorHandle;
     /** @brief Pointer to the controller for the right motor. */
-    BaseController* rightController;
+    BaseControllerHandle rightControllerHandle;
     /** @brief Pointer to the controller for the left motor. */
-    BaseController* leftController;
+    BaseControllerHandle leftControllerHandle;
 };
 
 /**
@@ -36,6 +36,12 @@ struct DifferentialDriveMotorConfig {
  */
 class GenericDifferentialDriveNavigation : public BaseNavigation{
 public:
+    /**
+     * @brief Destructor for the GenericDifferentialDriveNavigation object.
+     */
+    virtual ~GenericDifferentialDriveNavigation() = default;
+
+protected:
     /**
      * @brief Constructs a new GenericDifferentialDriveNavigation object.
      * @details Initializes the navigation system with the required components.
@@ -51,30 +57,20 @@ public:
      * @warning This class stores raw pointers to the dependencies. The caller must ensure
      *          that these objects remain valid for the lifetime of this navigation instance.
      */
-    explicit GenericDifferentialDriveNavigation(GenericDifferentialDriveOdometry* odometry, BaseProfileGenerator* profileGenerator, BaseStopCondition* stopCondition, DifferentialDriveMotorConfig motorConfig)
-        : _odometry(odometry), _motorConfig(motorConfig), BaseNavigation(profileGenerator, stopCondition) {
-            if (_odometry == nullptr) LOG_ERROR("Odometry can not be NULL");
-            if (_motorConfig.leftController == nullptr) LOG_ERROR("Left Controller can not be NULL");
-            if (_motorConfig.leftMotor == nullptr) LOG_ERROR("Left Motor can not be NULL");
-            if (_motorConfig.rightController == nullptr) LOG_ERROR("Right Controller can not be NULL");
-            if (_motorConfig.rightMotor == nullptr) LOG_ERROR("Right Motor can not be NULL");
-        }
+    explicit GenericDifferentialDriveNavigation(GenericDifferentialDriveOdometryHandle odometryHandle, BaseProfileGeneratorHandle profileGeneratorHandle, BaseStopConditionHandle stopConditionHandle, DifferentialDriveMotorConfig motorConfig)
+        : _odometryHandle(odometryHandle), _motorConfig(motorConfig), BaseNavigation(profileGeneratorHandle, stopConditionHandle) {}
 
-    /**
-     * @brief Destructor for the GenericDifferentialDriveNavigation object.
-     */
-    virtual ~GenericDifferentialDriveNavigation() = default;
-
-protected:
     /**
      * @brief Pointer to the differential drive odometry system.
      */
-    GenericDifferentialDriveOdometry* _odometry;
+    GenericDifferentialDriveOdometryHandle _odometryHandle;
 
     /**
      * @brief Configuration object holding motor and controller references.
      */
     DifferentialDriveMotorConfig _motorConfig;
 };
+
+using GenericDifferentialDriveNavigationHandle = NavigationPointer(GenericDifferentialDriveNavigation);
 
 } // namespace Motion::Core::Robot

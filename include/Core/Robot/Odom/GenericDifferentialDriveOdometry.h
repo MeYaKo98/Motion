@@ -33,15 +33,6 @@ public:
     };
 
     /**
-     * @brief Constructs a new GenericDifferentialDriveOdometry object.
-     * @param wheelSpacing The distance between the centers of the two wheels (track width).
-     * @param rightWheel Pointer to the right wheel object. Must not be nullptr.
-     * @param leftWheel Pointer to the left wheel object. Must not be nullptr.
-     * @warning The caller is responsible for ensuring the Wheel pointers remain valid for the lifetime of this object.
-     */
-    explicit GenericDifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel);
-
-    /**
      * @brief Destroys the GenericDifferentialDriveOdometry object.
      */
     ~GenericDifferentialDriveOdometry();
@@ -54,6 +45,15 @@ public:
 
 protected:
     /**
+     * @brief Constructs a new GenericDifferentialDriveOdometry object.
+     * @param wheelSpacing The distance between the centers of the two wheels (track width).
+     * @param rightWheel Pointer to the right wheel object. Must not be nullptr.
+     * @param leftWheel Pointer to the left wheel object. Must not be nullptr.
+     * @warning The caller is responsible for ensuring the Wheel pointers remain valid for the lifetime of this object.
+     */
+    explicit GenericDifferentialDriveOdometry(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle);
+
+    /**
      * @brief Set the current state of the differential drive wheels.
      * @param newState DifferentialDriveState A struct containing distances and speeds for both wheels.
      */
@@ -62,9 +62,9 @@ protected:
     /** @brief The distance between wheels. */
     float _wheelSpacing;
     /** @brief Pointer to the right wheel instance. */
-    Wheel* _rightWheel;
+    WheelHandle _rightWheelHandle;
     /** @brief Pointer to the left wheel instance. */
-    Wheel* _leftWheel;
+    WheelHandle _leftWheelHandle;
   
 private:
     /** 
@@ -77,5 +77,7 @@ private:
      */
     SemaphoreHandle_t _stateMutex;
 };
+
+using GenericDifferentialDriveOdometryHandle = OdometryPointer(GenericDifferentialDriveOdometry);
 
 } // namespace Motion::Core::Robot

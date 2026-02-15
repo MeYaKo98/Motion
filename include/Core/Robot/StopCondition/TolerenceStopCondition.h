@@ -17,14 +17,14 @@ namespace Motion::Core::Robot {
  *          the configured tolerance value. It is commonly used to determine if a motion
  *          has reached its target within an acceptable margin of error.
  */
+class TolerenceStopCondition; 
+
+using TolerenceStopConditionHandle = StopConditionPointer(TolerenceStopCondition);
+
 class TolerenceStopCondition : public BaseStopCondition{
 public:
-    /**
-     * @brief Constructs a new Tolerance Stop Condition.
-     * @param tolerence The threshold value for the stop condition. The condition is met
-     *                  if the absolute error is less than this value.
-     */
-    explicit TolerenceStopCondition(float tolerence);
+
+    static TolerenceStopConditionHandle Create(float tolerence);
 
     /**
      * @brief Destroys the Tolerance Stop Condition object.
@@ -46,6 +46,13 @@ public:
     void Reset() override;
 
 protected:
+    /**
+     * @brief Constructs a new Tolerance Stop Condition.
+     * @param tolerence The threshold value for the stop condition. The condition is met
+     *                  if the absolute error is less than this value.
+     */
+    explicit TolerenceStopCondition(float tolerence);
+
     /**
      * @brief The configured error tolerance threshold.
      */

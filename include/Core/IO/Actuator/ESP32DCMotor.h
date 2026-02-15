@@ -16,16 +16,17 @@ namespace Motion::Core::IO {
  * @details This class implements the GenericDCMotor interface using ESP32-specific hardware features
  *          (e.g., LEDC PWM) to control motor speed and direction.
  */
+class ESP32DCMotor;
+
+/**
+ * @relates ESP32DCMotor
+ * @brief Smart handle for ESP32 Motor instances.
+ */
+using ESP32DCMotorHandle = ActuatorPointer(ESP32DCMotor);
+
 class ESP32DCMotor : public GenericDCMotor {
 public:
-    /**
-     * @brief Constructs a new ESP32DCMotor object.
-     * @details Initializes the motor instance with a name and hardware configuration.
-     * @param name A human-readable name for the motor, used for identification and logging.
-     * @param config The configuration structure containing DC motor command pins and settings.
-     * @note Ensure that the GPIO pins specified in `config` are valid and available on the ESP32.
-     */
-    explicit ESP32DCMotor(const char* name, DCMotorConfig config);
+    static ESP32DCMotorHandle Create(const char* name, DCMotorConfig config);
 
     /**
      * @brief Destroys the ESP32DCMotor object.
@@ -54,6 +55,16 @@ public:
      * @details Sets the motor output to neutral/zero, effectively halting rotation.
      */
     void Stop() override;
+
+protected:
+    /**
+     * @brief Constructs a new ESP32DCMotor object.
+     * @details Initializes the motor instance with a name and hardware configuration.
+     * @param name A human-readable name for the motor, used for identification and logging.
+     * @param config The configuration structure containing DC motor command pins and settings.
+     * @note Ensure that the GPIO pins specified in `config` are valid and available on the ESP32.
+     */
+    explicit ESP32DCMotor(const char* name, DCMotorConfig config);
 };
 
 } // namespace Motion::Core::IO

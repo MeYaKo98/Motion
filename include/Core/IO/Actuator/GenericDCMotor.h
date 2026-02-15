@@ -28,7 +28,7 @@ struct DCMotorConfig {
  *          that are controlled via two pins (typically connected to an H-Bridge).
  */
 class GenericDCMotor : public GenericMotor {
-public:
+protected:
     /**
      * @brief Constructs a new Generic DC Motor object.
      * @details Initializes the motor with a name and hardware configuration.
@@ -38,11 +38,16 @@ public:
      */
     explicit GenericDCMotor(const char* name, DCMotorConfig config) : GenericMotor(name), _config(config) {};
 
-protected:
     /**
      * @brief The hardware configuration for this motor.
      */
     DCMotorConfig _config;
 };
+
+/**
+ * @relates GenericDCMotor
+ * @brief Smart handle for DC Motor instances.
+ */
+using GenericDCMotorHandle = ActuatorPointer(GenericDCMotor);
 
 } // namespace Motion::Core::IO

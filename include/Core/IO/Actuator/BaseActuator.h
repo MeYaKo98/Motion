@@ -20,14 +20,6 @@ template <typename T>
 class BaseActuator : public IActuator{
 public:
     /**
-     * @brief Constructs a new BaseActuator object.
-     * @param name A human-readable name for the actuator.
-     * @note The actuator type is initialized to "tobeupdated" and the data size is set to sizeof(T).*
-     * @todo implement auto type name
-     */
-    explicit BaseActuator(const char* name) : IActuator(name, get_typename<T>(), sizeof(T)) {}
-
-    /**
      * @brief Sets and sends a command to the actuator.
      * @details Stores the command internally and dispatches it via the pure virtual SendCommand method.
      * @param command The command value to send.
@@ -68,6 +60,13 @@ public:
 
 protected:
     /**
+     * @brief Constructs a new BaseActuator object.
+     * @param name A human-readable name for the actuator.
+     * @note The actuator type is initialized to "tobeupdated" and the data size is set to sizeof(T).*
+     */
+    explicit BaseActuator(const char* name) : IActuator(name, get_typename<T>(), sizeof(T)) {}
+    
+    /**
      * @brief Sends the command to the physical actuator.
      * @details This pure virtual function must be implemented by derived classes to handle the specific hardware communication.
      * @param command The command to send.
@@ -79,5 +78,7 @@ protected:
      */
     T _command;
 };
+
+template <typename T> using BaseActuatorHandle = ActuatorPointer(BaseActuator<T>);
 
 } // namespace Motion::Core::IO

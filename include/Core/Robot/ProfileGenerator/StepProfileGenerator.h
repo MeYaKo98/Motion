@@ -20,14 +20,14 @@ namespace Motion::Core::Robot {
  *          It does not account for acceleration or deceleration phases (effectively infinite acceleration).
  * @see BaseProfileGenerator
  */
+class StepProfileGenerator;
+
+using StepProfileGeneratorHandle = ProfileGeneratorPointer(StepProfileGenerator);
+
 class StepProfileGenerator : public BaseProfileGenerator{
 public:
-    /**
-     * @brief Constructs a StepProfileGenerator with a specific target speed.
-     * @details Initializes the generator with a fixed velocity value.
-     * @param speed The constant speed to be returned by the profile. Units are user-defined (e.g., m/s).
-     */
-    explicit StepProfileGenerator(float speed);
+
+    static StepProfileGeneratorHandle Create(float speed);
 
     /**
      * @brief Destroys the StepProfileGenerator object.
@@ -53,7 +53,14 @@ public:
      */
     float CalculateValue(float progress) override;
 
-private:
+protected:
+    /**
+     * @brief Constructs a StepProfileGenerator with a specific target speed.
+     * @details Initializes the generator with a fixed velocity value.
+     * @param speed The constant speed to be returned by the profile. Units are user-defined (e.g., m/s).
+     */
+    explicit StepProfileGenerator(float speed);
+
     float _speed;
     float _distance;
 };

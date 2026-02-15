@@ -21,17 +21,24 @@ namespace Motion::Core::IO {
  *          If this channel is accessed from multiple FreeRTOS tasks, the caller must ensure proper
  *          mutual exclusion (e.g., using a mutex) before calling `Send` or `Read`.
  */
+class ESP32Serial;
+    
+/**
+ * @brief Defining The ESP32 Serial handle
+ */
+using ESP32SerialHandle = ChannelPointer(ESP32Serial);
+
 class ESP32Serial : public GenericSerial {
 public:
     /**
-     * @details Initializes the wrapper with a specific serial port and baud rate.
-     *          The serial port is not opened until `Start()` is called.
+     * @details Create an instance of the wrapper serial class.
      *
      * @param serial Reference to the global `HardwareSerial` object (e.g., `Serial` for USB, `Serial1` for UART pins).
      *               Defaults to `Serial`.
      * @param baudRate The baud rate for communication (e.g., 9600, 115200). Defaults to 115200.
-     */
-    ESP32Serial(HardwareSerial& serial = Serial, uint32_t baudRate = 115200);
+     */    
+    static ESP32SerialHandle Create(HardwareSerial& serial = Serial, uint32_t baudRate = 115200);
+
 
     /**
      * @brief Destroys the ESP32Serial object.
@@ -81,7 +88,17 @@ public:
      */
     void Stop() override;
 
-protected:
+private:
+    /**
+     * @details Initializes the wrapper with a specific serial port and baud rate.
+     *          The serial port is not opened until `Start()` is called.
+     *
+     * @param serial Reference to the global `HardwareSerial` object (e.g., `Serial` for USB, `Serial1` for UART pins).
+     *               Defaults to `Serial`.
+     * @param baudRate The baud rate for communication (e.g., 9600, 115200). Defaults to 115200.
+     */
+    ESP32Serial(HardwareSerial& serial = Serial, uint32_t baudRate = 115200);
+
     /**
      * @brief Reference to the underlying Arduino HardwareSerial object.
      */
