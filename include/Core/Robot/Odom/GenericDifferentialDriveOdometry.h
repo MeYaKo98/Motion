@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "Core\Robot\Odom\BaseOdometry.h"
-#include "Core\Robot\Wheel.h"
+#include "Core/Robot/Odom/BaseOdometry.h"
+#include "Core/Robot/Wheel.h"
 
 namespace Motion::Core::Robot {
 
@@ -33,40 +33,51 @@ public:
     };
 
     /**
+     * @brief Destroys the GenericDifferentialDriveOdometry object.
+     */
+    ~GenericDifferentialDriveOdometry();
+
+    /**
+     * @brief Retrieves the current state of the differential drive wheels.
+     * @return DifferentialDriveState A struct containing distances and speeds for both wheels.
+     */
+    DifferentialDriveState GetState();
+
+protected:
+    /**
      * @brief Constructs a new GenericDifferentialDriveOdometry object.
      * @param wheelSpacing The distance between the centers of the two wheels (track width).
      * @param rightWheel Pointer to the right wheel object. Must not be nullptr.
      * @param leftWheel Pointer to the left wheel object. Must not be nullptr.
      * @warning The caller is responsible for ensuring the Wheel pointers remain valid for the lifetime of this object.
      */
-    explicit GenericDifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel) :
-        _wheelSpacing(wheelSpacing), _rightWheel(rightWheel), _leftWheel(leftWheel), _state({0.0f, 0.0f, 0.0f, 0.0f}) {}
+    explicit GenericDifferentialDriveOdometry(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle);
 
     /**
-     * @brief Destroys the GenericDifferentialDriveOdometry object.
+     * @brief Set the current state of the differential drive wheels.
+     * @param newState DifferentialDriveState A struct containing distances and speeds for both wheels.
      */
-    ~GenericDifferentialDriveOdometry() = default;
+    bool SetState(const DifferentialDriveState& newstate);
 
-    /**
-     * @brief Retrieves the current state of the differential drive wheels.
-     * @return DifferentialDriveState A struct containing distances and speeds for both wheels.
-     */
-    DifferentialDriveState GetState() {return _state;}
-
-private:
-
-protected:
     /** @brief The distance between wheels. */
     float _wheelSpacing;
     /** @brief Pointer to the right wheel instance. */
-    Wheel* _rightWheel;
+    WheelHandle _rightWheelHandle;
     /** @brief Pointer to the left wheel instance. */
-    Wheel* _leftWheel;
+    WheelHandle _leftWheelHandle;
   
-    /** @brief The current internal state of the drive. 
-     * @todo add thread safety
+private:
+    /** 
+     * @brief The current internal state of the drive. 
      */
     DifferentialDriveState _state;
+
+    /**
+     * @brief Protect access to the state (set and get).
+     */
+    SemaphoreHandle_t _stateMutex;
 };
+
+using GenericDifferentialDriveOdometryHandle = OdometryPointer(GenericDifferentialDriveOdometry);
 
 } // namespace Motion::Core::Robot

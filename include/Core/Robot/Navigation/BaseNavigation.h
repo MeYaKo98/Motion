@@ -7,10 +7,18 @@
 
 #pragma once
 
-#include "Core\Robot\ProfileGenerator\BaseProfileGenerator.h"
-#include "Core\Robot\StopCondition\BaseStopCondition.h"
+#include <memory>
+#include "Core/Robot/ProfileGenerator/BaseProfileGenerator.h"
+#include "Core/Robot/StopCondition/BaseStopCondition.h"
+#include "Core/Diagnostics/Logger.h"
 
 namespace Motion::Core::Robot {
+
+#ifdef DOXYGEN
+#define NavigationPointer(T) T*
+#else
+#define NavigationPointer(T) std::unique_ptr<T>
+#endif
 
 /**
  * @brief An abstract interface for navigation systems across different drive types.
@@ -20,19 +28,6 @@ namespace Motion::Core::Robot {
  */
 class BaseNavigation {
 public:
-    /**
-     * @brief Constructs a new BaseNavigation object with required dependencies.
-     * @details Initializes the navigation system with a specific motion profile generator
-     *          and a stop condition.
-     * @param profileGenerator A pointer to a valid BaseProfileGenerator instance used for
-     *                         calculating velocity curves.
-     * @param stopCondition A pointer to a valid BaseStopCondition instance used to determine
-     *                      when a motion is complete.
-     * @warning The caller must ensure that the pointers passed are valid and remain valid
-     *          for the lifetime of this object. Passing nullptr may result in undefined behavior.
-     */
-    BaseNavigation(BaseProfileGenerator* profileGenerator, BaseStopCondition* stopCondition) : _profileGenerator(profileGenerator), _stopCondition(stopCondition) {};
-
     /**
      * @brief Virtual destructor for the BaseNavigation object.
      * @details Default implementation. Ensures proper cleanup of derived classes.
@@ -70,21 +65,34 @@ public:
      */
     virtual void Orient(float angle) = 0;
 
-private:
-
-
 protected:
+    /**
+     * @brief Constructs a new BaseNavigation object with required dependencies.
+     * @details Initializes the navigation system with a specific motion profile generator
+     *          and a stop condition.
+     * @param profileGenerator A pointer to a valid BaseProfileGenerator instance used for
+     *                         calculating velocity curves.
+     * @param stopCondition A pointer to a valid BaseStopCondition instance used to determine
+     *                      when a motion is complete.
+     * @warning The caller must ensure that the pointers passed are valid and remain valid
+     *          for the lifetime of this object. Passing nullptr may result in undefined behavior.
+     */
+    BaseNavigation(BaseProfileGeneratorHandle profileGeneratorHandle, BaseStopConditionHandle stopConditionHandle)
+    : _profileGeneratorHandle(profileGeneratorHandle), _stopConditionHandle(stopConditionHandle) {}
+
     /**
      * @brief Pointer to the motion profile generator.
      * @details Used by derived classes to calculate velocity setpoints over time or distance.
      */
-    BaseProfileGenerator* _profileGenerator;
+    BaseProfileGeneratorHandle _profileGeneratorHandle;
 
     /**
      * @brief Pointer to the stop condition.
      * @details Used by derived classes to check if the target has been reached within the acceptable error margin.
      */
-    BaseStopCondition* _stopCondition;
+    BaseStopConditionHandle _stopConditionHandle;
 };
+
+using BaseNavigationHandle = NavigationPointer(BaseNavigation);
 
 } // namespace Motion::Core::Robot

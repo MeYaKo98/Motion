@@ -6,6 +6,14 @@
 
 #pragma once
 
+#include "Core/Diagnostics/Logger.h"
+
+#ifdef DOXYGEN
+#define ControllerPointer(T) T*
+#else
+#define ControllerPointer(T) std::shared_ptr<T>
+#endif
+
 namespace Motion::Core::Robot {
 
 /**
@@ -15,14 +23,6 @@ namespace Motion::Core::Robot {
  */
 class BaseController {
 public:
-    /**
-     * @brief Constructs a new BaseController with specified output limits.
-     * @param maxCommand The maximum allowable output command value.
-     * @param minCommand The minimum allowable output command value.
-     * @note The concrete implementation is responsible for enforcing these limits within `GenerateCommand`.
-     */
-    BaseController(float maxCommand, float minCommand) : _maxCommand(maxCommand), _minCommand(minCommand)  {}
-
     /**
      * @brief Virtual destructor for the BaseController.
      */
@@ -44,10 +44,20 @@ public:
     virtual float GenerateCommand(float error) = 0;
 
 protected:
+    /**
+     * @brief Constructs a new BaseController with specified output limits.
+     * @param maxCommand The maximum allowable output command value.
+     * @param minCommand The minimum allowable output command value.
+     * @note The concrete implementation is responsible for enforcing these limits within `GenerateCommand`.
+     */
+    BaseController(float maxCommand, float minCommand) : _maxCommand(maxCommand), _minCommand(minCommand)  {}
+
     /** @brief The maximum allowable output command. */
     float _maxCommand;
     /** @brief The minimum allowable output command. */
     float _minCommand;
 };
+
+using BaseControllerHandle = ControllerPointer(BaseController);
 
 } // namespace Motion::Core::Robot

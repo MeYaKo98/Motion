@@ -5,9 +5,16 @@
 
 namespace Motion::Core::IO {
 
+class ESP32TCP;
+    
+/**
+ * @brief Defining The ESP32 TCP handle
+ */
+using ESP32TCPHandle = ChannelPointer(ESP32TCP);
+
 class ESP32TCP : public GenericTCP {
 public:
-    ESP32TCP(uint16_t port);
+    static ESP32TCPHandle Create(uint16_t port);
     virtual ~ESP32TCP();
 
     bool Start() override;
@@ -15,6 +22,9 @@ public:
     size_t Read(uint8_t* buffer, size_t bufferSize) override;
     bool IsConnected() override;
     void Stop() override;
+
+protected:
+    ESP32TCP(uint16_t port);
 
 private:
     WiFiServer _server;

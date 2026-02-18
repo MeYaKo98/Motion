@@ -3,11 +3,17 @@
  * @brief Motor hardware interface for ESP32.
  */
 
-#include "Core\IO\Actuator\ESP32DCMotor.h"
+#include "Core/IO/Actuator/ESP32DCMotor.h"
 
 namespace Motion::Core::IO {
 
 ESP32DCMotor::ESP32DCMotor(const char* name, DCMotorConfig config) : GenericDCMotor(name, config) {}
+
+ESP32DCMotorHandle ESP32DCMotor::Create(const char* name, DCMotorConfig config)
+{
+    if (config.pinA == config.pinB) throw std::invalid_argument("Pins must be different");
+    return ESP32DCMotorHandle(new ESP32DCMotor(name, config));
+}
 
 bool ESP32DCMotor::Start()
 {
@@ -16,15 +22,18 @@ bool ESP32DCMotor::Start()
     return true;
 }
 
-ESP32DCMotor::~ESP32DCMotor() {
+ESP32DCMotor::~ESP32DCMotor()
+{
     Stop();
 }
 
-void ESP32DCMotor::Stop() {
+void ESP32DCMotor::Stop()
+{
     SetCommand(0.0f);
 }
 
-void ESP32DCMotor::SendCommand(float command) {
+void ESP32DCMotor::SendCommand(float command) 
+{
     if (command > 0)
     {
         if (command>1.0f) command = 1.0f;

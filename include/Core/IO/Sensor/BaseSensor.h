@@ -5,7 +5,8 @@
 
 #pragma once
 
-#include "Core\IO\Sensor\ISensor.h"
+#include "Core/IO/Sensor/ISensor.h"
+#include "Core/IO/typeNameUtil.h"
 #include <string.h>
 
 namespace Motion::Core::IO {
@@ -18,15 +19,8 @@ namespace Motion::Core::IO {
  *          must inherit from this class and implement the `ReadSensor()` method.
  */
 template <typename T>
-class BaseSensor : public ISensor {
+class BaseSensor: public ISensor {
 public:
-    /**
-     * @brief Constructs a new BaseSensor object.
-     * @param name A human-readable unique identifier for the sensor (e.g., "Left Encoder").
-     * @todo implement auto type name
-     */
-    explicit BaseSensor(const char* name) : ISensor(name, "tobeupdated", sizeof(T)) {}
-
     /**
      * @brief Retrieves the latest reading from the sensor.
      * @details This method triggers a hardware read by calling the pure virtual `ReadSensor()` method,
@@ -54,6 +48,12 @@ public:
     
 protected:
     /**
+     * @brief Constructs a new BaseSensor object.
+     * @param name A human-readable unique identifier for the sensor (e.g., "Left Encoder").
+     */
+    explicit BaseSensor(const char* name) : ISensor(name, get_typename<T>(), sizeof(T)) {}
+
+    /**
      * @brief Reads the raw value from the hardware sensor.
      * @details This pure virtual function must be implemented by derived classes to interface
      *          with the specific sensor hardware.
@@ -63,5 +63,11 @@ protected:
 
     T _reading;
 };
+
+/**
+ * @relates BaseSensor
+ * @brief Smart handle for Sensor instances.
+ */
+template <typename T> using BaseSensorHandle = SensorPointer(BaseSensor<T>);
 
 } // namespace Motion::Core::IO

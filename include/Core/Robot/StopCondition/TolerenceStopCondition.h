@@ -1,11 +1,12 @@
 /**
- * @file TolarenceStopCondition.h
+ * @file TolerenceStopCondition.h
  * @brief Defines a stop condition based on an error tolerance threshold.
  */
 
 #pragma once
 
 #include "Core/Robot/StopCondition/BaseStopCondition.h"
+#include "Core/Diagnostics/Logger.h"
 #include <cmath>
 
 namespace Motion::Core::Robot {
@@ -16,19 +17,19 @@ namespace Motion::Core::Robot {
  *          the configured tolerance value. It is commonly used to determine if a motion
  *          has reached its target within an acceptable margin of error.
  */
-class TolarenceStopCondition : public BaseStopCondition{
+class TolerenceStopCondition; 
+
+using TolerenceStopConditionHandle = StopConditionPointer(TolerenceStopCondition);
+
+class TolerenceStopCondition : public BaseStopCondition{
 public:
-    /**
-     * @brief Constructs a new Tolerance Stop Condition.
-     * @param tolerence The threshold value for the stop condition. The condition is met
-     *                  if the absolute error is less than this value.
-     */
-    explicit TolarenceStopCondition(float tolerence);
+
+    static TolerenceStopConditionHandle Create(float tolerence);
 
     /**
      * @brief Destroys the Tolerance Stop Condition object.
      */
-    ~TolarenceStopCondition();
+    ~TolerenceStopCondition();
 
     /**
      * @brief Determines if the robot should stop based on the current error.
@@ -46,9 +47,16 @@ public:
 
 protected:
     /**
+     * @brief Constructs a new Tolerance Stop Condition.
+     * @param tolerence The threshold value for the stop condition. The condition is met
+     *                  if the absolute error is less than this value.
+     */
+    explicit TolerenceStopCondition(float tolerence);
+
+    /**
      * @brief The configured error tolerance threshold.
      */
-    float _tolarence;
+    float _tolerence;
 };
 
 } // namespace Motion::Core::Robot

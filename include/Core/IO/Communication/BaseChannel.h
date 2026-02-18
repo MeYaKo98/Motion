@@ -11,8 +11,14 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <memory>
 
 namespace Motion::Core::IO {
+
+/**
+ * @brief Defining The type of pointers used fr channel handles (shared_ptr)
+ */
+#define ChannelPointer(T) std::shared_ptr<T>
 
 /**
  * @class BaseChannel
@@ -23,12 +29,6 @@ namespace Motion::Core::IO {
  */
 class BaseChannel {
 public:
-    /**
-     * @brief Default constructor.
-     * @details Initializes the channel state to not started.
-     */
-    BaseChannel() : _started(false) {};
-
     /**
      * @brief Starts the communication channel.
      * @details Performs necessary hardware initialization, resource allocation, or connection establishment.
@@ -83,9 +83,20 @@ public:
 
 protected:
     /**
+     * @brief Default constructor.
+     * @details Initializes the channel state to not started.
+     */
+    BaseChannel() : _started(false) {};
+    
+    /**
      * @brief Internal flag tracking the started state of the channel.
      */
     bool _started;
 };
+
+/**
+ * @brief Defining The base channel handle (unique_ptr)
+ */
+using BaseChannelHandle = ChannelPointer(BaseChannel);
 
 } // namespace Motion::Core::IO

@@ -5,7 +5,15 @@
 
 #pragma once
 
+#include <memory>
+
 namespace Motion::Core::Robot {
+
+#ifdef DOXYGEN
+#define StopConditionPointer(T) T*
+#else
+#define StopConditionPointer(T) std::shared_ptr<T>
+#endif
 
 /**
  * @brief Abstract base class defining the interface for motion stop conditions.
@@ -13,13 +21,12 @@ namespace Motion::Core::Robot {
  *          sensor-based) to be used interchangeably by the motion control system.
  *          Derived classes must implement the `ShouldExit` and `Reset` methods.
  */
+class BaseStopCondition;
+
+using BaseStopConditionHandle = StopConditionPointer(BaseStopCondition);
+
 class BaseStopCondition{
 public:
-    /**
-     * @brief Constructs a new Base Stop Condition object.
-     */
-    BaseStopCondition() {};
-
     /**
      * @brief Virtual destructor.
      * @details Ensures that the destructor of the derived class is called when
@@ -43,6 +50,15 @@ public:
      * @note Failure to reset may cause the condition to trigger prematurely in subsequent motions.
      */
     virtual void Reset() = 0;
+
+protected:
+    /**
+     * @brief Constructs a new Base Stop Condition object.
+     */
+    BaseStopCondition() {};
+
 };
+
+using BaseStopConditionHandle = StopConditionPointer(BaseStopCondition);
 
 } // namespace Motion::Core::Robot

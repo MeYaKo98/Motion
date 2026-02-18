@@ -5,6 +5,7 @@
 
 #pragma once
 #include "BaseProfileGenerator.h"
+#include "Core/Diagnostics/Logger.h"
 
 namespace Motion::Core::Robot {
 
@@ -16,15 +17,14 @@ namespace Motion::Core::Robot {
  * cruise, deceleration) and triangular (acceleration, deceleration) profiles
  * depending on the distance.
  */
+class TrapezoidalProfileGenerator;
+
+using TrapezoidalProfileGeneratorHandle = ProfileGeneratorPointer(TrapezoidalProfileGenerator);
+
 class TrapezoidalProfileGenerator : public BaseProfileGenerator {
 public:
-    /**
-     * @brief Constructs a new Trapezoidal Profile Generator.
-     * 
-     * @param acceleration The rate of acceleration and deceleration. The absolute value is used.
-     * @param velocity The maximum cruise velocity. The absolute value is used.
-     */
-    TrapezoidalProfileGenerator(float acceleration, float velocity);
+
+    static TrapezoidalProfileGeneratorHandle Create(float acceleration, float velocity);
 
     /**
      * @brief Destroys the Trapezoidal Profile Generator.
@@ -52,7 +52,15 @@ public:
      */
     float CalculateValue(float progress) override;
 
-private:
+protected:
+    /**
+     * @brief Constructs a new Trapezoidal Profile Generator.
+     * 
+     * @param acceleration The rate of acceleration and deceleration. The absolute value is used.
+     * @param velocity The maximum cruise velocity. The absolute value is used.
+     */
+    TrapezoidalProfileGenerator(float acceleration, float velocity);
+
     float _distance;
     float _acceleration;
     float _velocity;

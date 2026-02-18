@@ -7,8 +7,16 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <memory>
+#include <Core/Diagnostics/Logger.h>
 
 namespace Motion::Core::IO {
+
+#ifdef DOXYGEN
+#define ActuatorPointer(T) T*
+#else
+#define ActuatorPointer(T) std::shared_ptr<T>
+#endif
 
 /**
  * @brief Non-template base interface for generic actuator management.
@@ -17,25 +25,7 @@ namespace Motion::Core::IO {
  *          pure virtual methods for lifecycle management (Start, Stop) and data retrieval.
  */
 class IActuator {
-protected:
-    /** @brief The human-readable name of the actuator. */
-    const char* _name;
-    /** @brief The string representation of the data type used to command the actuator. */
-    const char* _dataType;
-    /** @brief The size of the command data in bytes. */
-    size_t _typeSize;
-    
 public:
-    /**
-     * @brief Constructs a new IActuator object.
-     * @param name A human-readable actuator name.
-     * @param dataType A human-readable string describing the actuator data type.
-     * @param typeSize The size of the command data type in bytes.
-     * @note The `name` and `dataType` pointers are stored directly. The caller must ensure
-     *       these strings remain valid for the lifetime of this object (typically string literals).
-     */
-    explicit IActuator(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {}
-
     /**
      * @brief Returns the name of the actuator.
      * @return const char* The name of the actuator.
@@ -89,6 +79,26 @@ public:
      * @brief Deleted assignment operator to prevent assignment of actuator instances.
      */
     IActuator& operator=(const IActuator&) = delete;
+
+protected:
+    /**
+     * @brief Constructs a new IActuator object.
+     * @param name A human-readable actuator name.
+     * @param dataType A human-readable string describing the actuator data type.
+     * @param typeSize The size of the command data type in bytes.
+     * @note The `name` and `dataType` pointers are stored directly. The caller must ensure
+     *       these strings remain valid for the lifetime of this object (typically string literals).
+     */
+    explicit IActuator(const char* name, const char* dataType, size_t typeSize) : _name(name), _dataType(dataType), _typeSize(typeSize) {}
+
+    /** @brief The human-readable name of the actuator. */
+    const char* _name;
+
+    /** @brief The string representation of the data type used to command the actuator. */
+    const char* _dataType;
+
+    /** @brief The size of the command data in bytes. */
+    size_t _typeSize;
 };
 
 } // namespace Motion::Core::IO

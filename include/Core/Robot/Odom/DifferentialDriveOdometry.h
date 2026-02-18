@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core\Robot\Odom\GenericDifferentialDriveOdometry.h"
+#include "Core/Robot/Odom/GenericDifferentialDriveOdometry.h"
 
 namespace Motion::Core::Robot {
 
@@ -19,9 +19,24 @@ namespace Motion::Core::Robot {
  * @see GenericDifferentialDriveOdometry
  * @see BaseOdometry
  */
+class DifferentialDriveOdometry;
+
+using DifferentialDriveOdometryHandle = OdometryPointer(DifferentialDriveOdometry);
+
 class DifferentialDriveOdometry : public GenericDifferentialDriveOdometry {
 
 public:
+    static DifferentialDriveOdometryHandle Create(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle);
+
+    /**
+     * @brief Destroys the Differential Drive Odometry object.
+     * @details Cleans up resources used by the odometry instance.
+     * @note This destructor does **not** delete the `Wheel` objects passed in the constructor. 
+     *       The ownership of `Wheel` objects remains with the caller.
+     */
+    ~DifferentialDriveOdometry();
+
+private:
     /**
      * @brief Construct a new Differential Drive Odometry object.
      * @details Initializes the odometry system with the physical robot parameters and wheel references.
@@ -33,17 +48,8 @@ public:
      * @warning The `rightWheel` and `leftWheel` pointers must not be `nullptr`. Passing `nullptr` will result in undefined behavior.
      * @warning The caller is responsible for ensuring the `Wheel` objects remain valid for the lifetime of this odometry instance.
      */
-    explicit DifferentialDriveOdometry(float wheelSpacing, Wheel* rightWheel, Wheel* leftWheel);
+    explicit DifferentialDriveOdometry(float wheelSpacing, WheelHandle& rightWheelHandle, WheelHandle& leftWheelHandle);
 
-    /**
-     * @brief Destroys the Differential Drive Odometry object.
-     * @details Cleans up resources used by the odometry instance.
-     * @note This destructor does **not** delete the `Wheel` objects passed in the constructor. 
-     *       The ownership of `Wheel` objects remains with the caller.
-     */
-    ~DifferentialDriveOdometry();
-
-private:
     /**
      * @brief Performs the periodic odometry calculation.
      * @details This function is called periodically by the background task (managed by `BaseOdometry`).

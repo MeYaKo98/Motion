@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Core\Robot\Navigation\GenericDifferentialDriveNavigation.h"
+#include "Core/Robot/Navigation/GenericDifferentialDriveNavigation.h"
 
 namespace Motion::Core::Robot {
 
@@ -15,19 +15,14 @@ namespace Motion::Core::Robot {
  *          for differential drive kinematics. It orchestrates the odometry, profile generation,
  *          and motor control to execute motion commands.
  */
+class DifferentialDriveNavigation;
+
+using DifferentialDriveNavigationHandle = NavigationPointer(DifferentialDriveNavigation);
+
 class DifferentialDriveNavigation : public GenericDifferentialDriveNavigation{
 public:
-    /**
-     * @brief Constructs a new DifferentialDriveNavigation object.
-     * @details Initializes the navigation system with the required components.
-     * @param odometry Pointer to the odometry instance for position tracking. Must not be nullptr.
-     * @param profileGenerator Pointer to the profile generator for velocity planning. Must not be nullptr.
-     * @param stopCondition Pointer to the stop condition logic. Must not be nullptr.
-     * @param motorConfig Configuration structure containing motor parameters.
-     * @warning The caller is responsible for ensuring that the pointers passed (odometry, profileGenerator, stopCondition)
-     *          remain valid for the lifetime of this object.
-     */
-    explicit DifferentialDriveNavigation(GenericDifferentialDriveOdometry* odometry, BaseProfileGenerator* profileGenerator, BaseStopCondition* stopCondition, DifferentialDriveMotorConfig motorConfig);
+
+    static DifferentialDriveNavigationHandle Create(GenericDifferentialDriveOdometryHandle odometryHandle, BaseProfileGeneratorHandle profileGeneratorHandle, BaseStopConditionHandle stopConditionHandle, DifferentialDriveMotorConfig motorConfig);
 
     /**
      * @brief Destructor of the DifferentialDriveNavigation object.
@@ -60,6 +55,19 @@ public:
      * @param angle The desired absolute orientation angle in radians.
      */
     void Orient(float angle) override;
+
+protected:
+    /**
+     * @brief Constructs a new DifferentialDriveNavigation object.
+     * @details Initializes the navigation system with the required components.
+     * @param odometry Pointer to the odometry instance for position tracking. Must not be nullptr.
+     * @param profileGenerator Pointer to the profile generator for velocity planning. Must not be nullptr.
+     * @param stopCondition Pointer to the stop condition logic. Must not be nullptr.
+     * @param motorConfig Configuration structure containing motor parameters.
+     * @warning The caller is responsible for ensuring that the pointers passed (odometry, profileGenerator, stopCondition)
+     *          remain valid for the lifetime of this object.
+     */
+    explicit DifferentialDriveNavigation(GenericDifferentialDriveOdometryHandle odometryHandle, BaseProfileGeneratorHandle profileGeneratorHandle, BaseStopConditionHandle stopConditionHandle, DifferentialDriveMotorConfig motorConfig);
 };
 
 } // namespace Motion::Core::Robot
