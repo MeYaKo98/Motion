@@ -50,12 +50,11 @@ public:
      *          This is essential for telemetry over serial/network and for inter-process communication.
      * @param[out] buffer Pointer to the destination buffer where the serialized data will be copied.
      *                    The buffer is expected to be allocated by the caller.
-     * @return void
      * @warning **Buffer Safety:** The caller must ensure that `buffer` is allocated with at least `sizeof(T)` bytes.
      *          Providing a smaller buffer will result in a **buffer overflow** and **undefined behavior**.
      *          Always verify buffer size before calling: `buffer != nullptr` and `buffer_size >= sizeof(T)`.
      * @note **Null Pointer Handling:** If `buffer` is nullptr, the function returns immediately without
-     *       performing any operation. No exception is thrown; the call is silently ignored.
+     *       performing any operation. No exception is thrown; the call is silently ignored.  
      *       **Design Pattern:** This is a fail-safe pattern to prevent crashes from null pointers.
      * @note **Thread-safety:** This function is **not** thread-safe with respect to concurrent `GetReading()` calls.
      *       If concurrent access is required, synchronize externally or use atomic types for `_reading`.
@@ -117,10 +116,9 @@ protected:
 };
 
 /**
- * @relates BaseSensor
- * @brief Smart handle (shared pointer) for Sensor instances.
+ * @brief Smart handle (smart pointer) for Sensor instances.
  * @details Manages the lifetime of sensor objects, ensuring proper cleanup when no longer referenced.
  */
-template <typename T> using BaseSensorHandle = SensorPointer(BaseSensor<T>);
+template <typename T> using BaseSensorHandle = SensorPointer(Motion::Core::IO::BaseSensor<T>);
 
 } // namespace Motion::Core::IO

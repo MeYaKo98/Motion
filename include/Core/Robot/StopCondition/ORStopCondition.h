@@ -60,10 +60,6 @@ public:
      *
      * @note **Ownership Model:** The ORStopCondition holds handles (references) to conditions,
      *       not ownership. Multiple composites can reference the same condition object.
-     *
-     * @warning **Memory Safety:** If you create conditions and pass them to this composite,
-     *          you are responsible for deleting them when done. Use smart pointers
-     *          (already provided by BaseStopConditionHandle's shared_ptr) for automatic cleanup.
      */
     ~ORStopCondition();
 
@@ -108,8 +104,6 @@ public:
      * @brief Resets the internal state of all contained stop conditions.
      * @details Iterates through both contained conditions and calls `Reset()` on each,
      *          ensuring they are ready for a new motion sequence.
-     *
-     * @return void
      *
      * @post Both `_conditionsA` and `_conditionsB` have their internal state reset.
      *       They are ready to evaluate a new motion sequence.

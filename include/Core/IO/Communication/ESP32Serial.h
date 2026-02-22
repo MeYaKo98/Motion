@@ -62,7 +62,7 @@ class ESP32Serial;
     
 /**
  * @brief Smart handle for ESP32Serial instances.
- * @details Uses shared_ptr for automatic lifetime management and safe reference counting.
+ * @details Uses smart pointers for automatic lifetime management and safe reference counting.
  */
 using ESP32SerialHandle = ChannelPointer(ESP32Serial);
 
@@ -71,7 +71,7 @@ public:
     /**
      * @brief Factory method to create an ESP32Serial communication channel.
      * @details Creates a new ESP32Serial wrapper around a HardwareSerial object.
-     *          Validates inputs and returns a shared_ptr for safe lifetime management.
+     *          Validates inputs and returns a smart pointer for safe lifetime management.
      *
      * @param serial Reference to the global `HardwareSerial` object to wrap.
      *               Common values:
@@ -85,7 +85,7 @@ public:
      *                 Must match the receiving device's baud rate.
      *                 Defaults to 115200 (very common for modern boards).
      *
-     * @return ESP32SerialHandle A shared_ptr to the newly created ESP32Serial instance.
+     * @return ESP32SerialHandle A smart pointer to the newly created ESP32Serial instance.
      *
      * @post The instance is created but **NOT started**. Call Start() to initialize hardware.
      *
@@ -361,8 +361,6 @@ public:
      * @details Calls `end()` on the underlying HardwareSerial to close the port,
      *          disable the UART hardware, and release resources. After this call,
      *          Send() and Read() will fail (return 0) until Start() is called again.
-     *
-     * @return void
      *
      * @post The serial port is closed:
      *       - UART hardware is disabled

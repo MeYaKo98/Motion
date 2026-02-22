@@ -12,6 +12,15 @@
 
 namespace Motion::Core::IO {
 
+class ESP32DCMotor;
+
+/**
+ * @brief Smart handle for ESP32 Motor instances.
+ * @details Uses smart pointers for automatic lifetime management and thread-safe reference counting.
+ */
+using ESP32DCMotorHandle = ActuatorPointer(Motion::Core::IO::ESP32DCMotor);
+
+
 /**
  * @brief An ESP32 hardware interface for DC motor control.
  * @details This class implements the GenericDCMotor interface using ESP32-specific hardware features:
@@ -51,7 +60,7 @@ namespace Motion::Core::IO {
  *          - Connected to motor driver inputs (not directly to motor)
  *
  * @warning **Motor Driver Required:** Do not connect GPIO pins directly to the motor.
- *          Use an H-Bridge motor driver (e.g., L298N, DRV8833) to:
+ *          Use an H-Bridge motor driver (e.g., L298N) to:
  *          - Provide sufficient current (GPIO can only provide ~40mA)
  *          - Protect GPIO from back-EMF when motor stops
  *          - Allow bidirectional control
@@ -60,15 +69,6 @@ namespace Motion::Core::IO {
  * @see GenericMotor for the generic motor abstraction
  * @see BaseActuator for the actuator base class
  */
-class ESP32DCMotor;
-
-/**
- * @relates ESP32DCMotor
- * @brief Smart handle for ESP32 Motor instances.
- * @details Uses shared_ptr for automatic lifetime management and thread-safe reference counting.
- */
-using ESP32DCMotorHandle = ActuatorPointer(ESP32DCMotor);
-
 class ESP32DCMotor : public GenericDCMotor {
 public:
     /**
@@ -85,7 +85,7 @@ public:
      *               - pinB: GPIO pin for reverse/secondary control
      *               Must satisfy: pinA != pinB (two different pins required)
      *
-     * @return ESP32DCMotorHandle A shared pointer to the newly created motor instance.
+     * @return ESP32DCMotorHandle A smart pointer to the newly created motor instance.
      *
      * @throws std::invalid_argument if config.pinA == config.pinB
      *         (cannot control motor with only one pin)
@@ -103,7 +103,7 @@ public:
      *       motor->SetCommand(0.5f); // 50% forward speed
      *       ```
      *
-     * @warning Always check the return value (shared_ptr is never null from Create() if validation passes).
+     * @warning Always check the return value (Handle is never null from Create() if validation passes).
      */
     static ESP32DCMotorHandle Create(const char* name, DCMotorConfig config);
 
@@ -196,8 +196,6 @@ public:
      *
      *                Values outside [-1, +1] are clamped to this range.
      *
-     * @return void
-     *
      * @pre Start() must have been called successfully before this method.
      *      Calling SendCommand() before Start() has undefined behavior.
      *
@@ -257,8 +255,6 @@ public:
      *          - Motor driver enters neutral state
      *          - Motor rotates freely (coasts to stop, not electrically braked)
      *          - Pending commands are not executed
-     *
-     * @return void
      *
      * @pre Start() should have been called before Stop() (though Stop() is safe even if not).
      *

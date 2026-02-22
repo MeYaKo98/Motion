@@ -120,14 +120,13 @@ protected:
 };
 
 /**
- * @relates GenericMotor
- * @brief Smart handle for Motor instances.
+ * @brief Smart handle for GenericMotor instances.
  * @details Uses smart pointer for automatic lifetime management.
  *          Recommended for ownership and passing motors through the application.
  *
  * @note Enables multiple subsystems to reference the same motor safely,
  *       with automatic cleanup when the last reference is destroyed.
  */
-using GenericMotorHandle = ActuatorPointer(GenericMotor);
+using GenericMotorHandle = ActuatorPointer(Motion::Core::IO::GenericMotor);
 
 } // namespace Motion::Core::IO

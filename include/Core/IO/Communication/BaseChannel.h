@@ -15,8 +15,8 @@
 namespace Motion::Core::IO {
 
 /**
- * @brief Defining the type of pointers used for channel handles (shared_ptr).
- * @details Uses shared_ptr for automatic lifetime management and safe multi-threaded access.
+ * @brief Defining the type of pointers used for channel handles
+ * @details Uses smart pointers for automatic lifetime management and safe multi-threaded access.
  */
 #define ChannelPointer(T) std::shared_ptr<T>
 
@@ -262,8 +262,6 @@ public:
      *          - **TCP:** Closes sockets, terminates network connection
      *          - **Bluetooth:** Closes link
      *
-     * @return void
-     *
      * @post The channel is no longer connected. `IsConnected()` will return false.
      *       `Send()` and `Read()` calls will fail or return 0.
      *
@@ -328,7 +326,7 @@ protected:
 };
 
 /**
- * @brief Smart handle for BaseChannel instances using shared_ptr.
+ * @brief Smart handle for BaseChannel instances using smart pointers.
  * @details Manages the lifetime of channel objects, ensuring proper cleanup when no longer referenced.
  */
 using BaseChannelHandle = ChannelPointer(BaseChannel);

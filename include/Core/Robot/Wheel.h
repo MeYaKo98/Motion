@@ -60,13 +60,12 @@ namespace Motion::Core::Robot {
 class Wheel;
 
 /**
- * @relates Wheel
- * @brief Smart handle (shared_ptr) for Wheel instances.
+ * @brief Smart handle (smart pointer) for Wheel instances.
  * @details Manages the lifetime of wheel objects with automatic cleanup.
  *          Allows safe sharing of wheel references among multiple components
  *          (odometry, diagnostics, etc.).
  */
-using WheelHandle = SensorPointer(Wheel);
+using WheelHandle = SensorPointer(Motion::Core::Robot::Wheel);
 
 class Wheel {
 public:
@@ -90,7 +89,7 @@ public:
      *               Typical values: 0.02 m (2 cm) to 0.5 m (50 cm)
      *               Must be > 0; throws if zero.
      *
-     * @return WheelHandle A shared_ptr to the newly created Wheel instance.
+     * @return WheelHandle A smart pointer to the newly created Wheel instance.
      *
      * @throws std::invalid_argument if encoderHandle is nullptr
      * @throws std::invalid_argument if resolution == 0
@@ -134,7 +133,7 @@ public:
      *
      * @note **Encoder Ownership:** This destructor does not manage the memory of the
      *       encoder pointer (stored in `_encoderHandle`). The encoder's creator/owner
-     *       is responsible for its cleanup. Using shared_ptr for the encoder ensures
+     *       is responsible for its cleanup. Using smart pointer for the encoder ensures
      *       proper cleanup automatically.
      *
      * @note **Safe to Delete:** It is safe to delete a wheel while other components
@@ -169,8 +168,6 @@ public:
      * @brief Stops the wheel's encoder hardware interface.
      * @details Delegates to the encoder's Stop() method to release hardware resources.
      *          After calling this, the wheel cannot provide distance readings until Start() is called again.
-     *
-     * @return void
      *
      * @note **Resource Cleanup:** Stopping the encoder releases GPIO pins, disables interrupts,
      *       and frees any hardware resources it was using.
@@ -303,7 +300,7 @@ protected:
      *          to linear distance via the getDistance() method.
      *
      * @note **Ownership:** The encoder is owned by the caller who passed it to Create().
-     *       The wheel holds a reference but doesn't own it. Using shared_ptr ensures
+     *       The wheel holds a reference but doesn't own it. Using smart pointer ensures
      *       the encoder persists as long as any component references it.
      *
      * @note **Thread-Safety:** The encoder itself handles synchronization of its tick count.

@@ -13,11 +13,7 @@
 
 namespace Motion::Core::IO {
 
-#ifdef DOXYGEN
-#define SensorPointer(T) T*;
-#else
 #define SensorPointer(T) std::shared_ptr<T>;
-#endif
 
 /**
  * @brief Non-template base interface for generic sensor management.
@@ -124,9 +120,6 @@ public:
      *          - Disable interrupt handlers (for sensors like encoders)
      *          - Release GPIO resources
      *          - Close communication channels (I2C, SPI, UART)
-     *          - Disable power-saving features may be moot
-     *
-     * @return void
      *
      * @post The sensor is in a stopped, safe state.
      * @post Hardware resources are released and available for other uses.
@@ -153,8 +146,6 @@ public:
      * @param[out] buffer Pointer to the output buffer where the serialized reading will be copied.
      *                    The buffer is allocated and managed by the caller.
      *
-     * @return void
-     *
      * @pre The `buffer` pointer must point to valid, allocated memory.
      * @post The binary representation of the latest sensor reading is written to `buffer`.
      *
@@ -163,7 +154,7 @@ public:
      *          **undefined behavior**. Always verify: `buffer_size >= GetTypeSize()`.
      *
      * @note **Memory Layout:** Uses `memcpy` for serialization, so byte order and alignment
-     *       follow the platform's native representation (typically little-endian on x86/ARM).
+     *       follow the platform's native representation    .
      *       For cross-platform data exchange, consider byte-order conversion.
      *
      * @note **Stale Data:** The returned value is the most recent reading cached by GetReading().

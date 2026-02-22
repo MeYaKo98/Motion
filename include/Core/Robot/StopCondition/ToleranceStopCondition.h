@@ -1,5 +1,5 @@
 /**
- * @file TolerenceStopCondition.h
+ * @file ToleranceStopCondition.h
  * @brief Defines a stop condition based on an error tolerance threshold.
  * @details This is the simplest and most common stop condition implementation.
  *          It stops when the error falls below a configured threshold.
@@ -56,7 +56,7 @@ public:
      *                  Must be a positive finite value. Units depend on the application context.
      *                  Examples: 0.01 (1cm), 0.05 (5 degrees), 0.001 (1mm)
      *
-     * @return ToleranceStopConditionHandle A shared pointer to the newly created condition.
+     * @return ToleranceStopConditionHandle A smart pointer to the newly created condition.
      *
      * @throws std::invalid_argument if tolerance <= 0
      * @throws std::invalid_argument if tolerance is NaN or Inf
@@ -138,8 +138,6 @@ public:
      * @details For this simple tolerance-based condition, there is no internal state to reset
      *          (the condition is stateless). This method is implemented for API consistency
      *          with BaseStopCondition.
-     *
-     * @return void
      *
      * @note **No-Op:** This method does nothing for ToleranceStopCondition because the
      *       decision in ShouldExit() depends only on the tolerance and current error,

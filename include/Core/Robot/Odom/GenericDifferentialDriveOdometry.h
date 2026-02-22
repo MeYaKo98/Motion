@@ -155,7 +155,7 @@ protected:
      *
      * @see GetState()
      */
-    bool SetState(const DifferentialDriveState& newstate);
+    bool SetState(const DifferentialDriveState& newState);
 
     /** 
      * @brief The distance between the contact points of the two wheels (track width).

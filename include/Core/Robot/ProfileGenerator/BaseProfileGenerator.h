@@ -11,11 +11,7 @@
 
 namespace Motion::Core::Robot {
 
-#ifdef DOXYGEN
-#define ProfileGeneratorPointer(T) T*
-#else
 #define ProfileGeneratorPointer(T) std::shared_ptr<T>
-#endif
 
 /**
  * @brief Defines the interface for motion profile generators.
@@ -79,8 +75,6 @@ public:
      * @param distance The total distance the motion profile should cover.
      *                 Unit depends on the implementation context (typically meters or millimeters).
      *                 Must be a positive, finite non-zero value.
-     *
-     * @return void
      *
      * @pre Before calling this method, the profile generator should be in a valid state
      *      (i.e., constructed and configured with valid parameters).

@@ -30,11 +30,7 @@
 
 namespace Motion::Core::Robot {
 
-#ifdef DOXYGEN
-#define OdometryPointer(T) T*
-#else
 #define OdometryPointer(T) std::shared_ptr<T>
-#endif
 
 /**
  * @brief An abstract base interface for odometry systems supporting all drive types.
@@ -56,7 +52,7 @@ namespace Motion::Core::Robot {
  *          5. Destructor: Ensures task is stopped and mutex is deleted
  *
  *          **Typical Usage:**
- *          ```cpp
+ *          @code
  *          // Create odometry instance (derived class, e.g., DifferentialDriveOdometry)
  *          auto odometry = DifferentialDriveOdometry::Create(wheelSpacing, rightWheel, leftWheel);
  *          
@@ -72,7 +68,7 @@ namespace Motion::Core::Robot {
  *          
  *          // Cleanup
  *          odometry->Stop();
- *          ```
+ *          @endcode
  *
  * @note **FreeRTOS Requirement:** This implementation is tightly coupled to FreeRTOS.
  *       It will not compile or run on non-FreeRTOS systems without significant modification.
@@ -120,14 +116,13 @@ public:
      *          The Start() method enforces several constraints on the frequency:
      *          - Maximum: Clamped to 1000 Hz (limits per FreeRTOS 1ms tick resolution)
      *          - Divisor of 1000: Frequency must divide 1000 evenly
-     *            If not, it's adjusted: e.g., 333 Hz → 333 Hz (auto-corrected)
+     *            If not, it's adjusted to nearest smaller divisor:
+     *            e.g., 333 Hz → 250 Hz (auto-corrected)
      *
      * @param odometryFrequency The desired update frequency in Hertz (Hz).
      *                          Default: 1000 Hz.
      *                          Valid range: 1-1000 Hz.
      *                          Typical values: 50, 100, 200, 500, 1000.
-     *
-     * @return void
      *
      * @pre The odometry system must be fully initialized. For DifferentialDriveOdometry,
      *      the wheels must be created and ready to provide readings.
@@ -185,8 +180,8 @@ public:
      *          The position is read in a thread-safe manner, so it can be called from any task.
      *
      *          **Return Value Components:**
-     *          - x: Robot's X position in the global frame (meters)
-     *          - y: Robot's Y position in the global frame (meters)
+     *          - x: Robot's X position in the global frame (typically meters)
+     *          - y: Robot's Y position in the global frame (typically meters)
      *          - theta: Robot's heading/yaw in the global frame (radians)
      *
      * @return Position A Position struct containing {x, y, theta} at the time of the call.
@@ -233,19 +228,21 @@ public:
      *          - Teleporting the robot's internal position for simulation or testing
      *
      *          **Typical Usage Pattern:**
-     *          ```cpp
+     *          @code
      *          // Robot has traveled some distance but odometry accumulated error
      *          // Use vision system to determine corrected position
      *          Position correctedPos = visionSystem->GetRobotPose();
-     *          if (odometry->SetPosition(correctedPos)) {
-     *              serial->Send("Odometry corrected\n");
-     *          } else {
-     *              serial->Send("Warning: odometry correction failed (mutex timeout)\n");
+     *          if (odometry->SetPosition(correctedPos))
+     *          {
+     *              LOG_TRACE("Odometry corrected");
+     *          } else
+     *          {
+     *              LOG_WARN("Warning: odometry correction failed (mutex timeout)");
      *          }
-     *          ```
+     *          @endcode
      *
      *          **Loop Closure Example:**
-     *          ```cpp
+     *          @code
      *          // Robot returns to starting location; vision confirms it
      *          Position homeOnVision = {0.0f, 0.0f, 0.0f};
      *          Position homeOnOdometry = odometry->GetPosition();
@@ -255,7 +252,7 @@ public:
      *              homeOnOdometry.x - homeOnVision.x,
      *              homeOnOdometry.y - homeOnVision.y,
      *              homeOnOdometry.theta - homeOnVision.theta);
-     *          ```
+     *          @endcode
      *
      * @param newPosition The new position to set {x, y, theta}.
      *                    - x, y: Linear position in the global frame (application units, typically meters)
@@ -319,8 +316,6 @@ public:
      *          - Releases the task's CPU time budget back to the scheduler
      *          - Stops sensor polling (encoders are no longer read periodically)
      *
-     * @return void
-     *
      * @post The background odometry task is stopped and its resources are freed.
      * @post _odomTaskHandler is set to nullptr.
      * @post _started flag is cleared (false).
@@ -335,13 +330,6 @@ public:
      *
      * @note **Cleanup in Destructor:** The destructor calls Stop() automatically,
      *       so explicitly calling Stop() is optional (but recommended for clarity).
-     *
-     * @note **Normal Shutdown Flow:**
-     *       ```cpp
-     *       odometry->Stop();        // Stop periodic updates
-     *       wheels->Stop();          // Stop encoder hardware
-     *       odometry.reset();        // Delete the odometry object (destructor calls Stop again, harmless)
-     *       ```
      *
      * @warning **Position Corruption Risk:** The mutex protecting position is NOT deleted
      *          when Stop() is called. If OdometryUpdate() is hanging (stuck on mutex), Stop()
@@ -398,6 +386,7 @@ protected:
      */
     bool _started;
 
+private:
     /**
      * @brief Handle to the FreeRTOS odometry task.
      * @details Holds the task ID. nullptr when task is not running.
@@ -405,24 +394,25 @@ protected:
      */
     TaskHandle_t _odomTaskHandler;
 
-private:
     /**
      * @brief The static FreeRTOS task function entry point.
      * @details This static function is called by FreeRTOS when the task starts.
      *          It loops periodically, calling OdometryUpdate() at the configured frequency.
      *
      *          **Task Loop:**
-     *          ```cpp
-     *          void OdometryTask(void* pvParameters) {
+     *          @code
+     *          void OdometryTask(void* pvParameters)
+     *          {
      *              BaseOdometry* odom = static_cast<BaseOdometry*>(pvParameters);
      *              TickType_t period = pdMS_TO_TICKS(1000 / frequency);
      *              TickType_t lastWakeTime = xTaskGetTickCount();
-     *              while (true) {
+     *              while (true)
+     *              {
      *                  odom->OdometryUpdate();  // Call derived implementation
      *                  vTaskDelayUntil(&lastWakeTime, period);  // Precise periodic delay
      *              }
      *          }
-     *          ```
+     *          @endcode
      *
      * @param pvParameters Pointer to the BaseOdometry instance (cast from void* to BaseOdometry*)
      *
@@ -450,8 +440,9 @@ private:
      *          - **IMU-Based:** Reads accelerometer/gyro, integrates for position/orientation.
      *
      *          **Algorithm Template:**
-     *          ```cpp
-     *          void OdometryUpdate() override {
+     *          @code
+     *          void OdometryUpdate() override
+     *          {
      *              // 1. Read sensor data
      *              float leftDist = leftWheel->getDistance();
      *              float rightDist = rightWheel->getDistance();
@@ -465,20 +456,15 @@ private:
      *              float deltaThetaRad = (deltaRight - deltaLeft) / wheelSpacing;
      *              
      *              // 4. Update position
+     *              Position currPos = GetPosition();
      *              Position newPos;
-     *              newPos.x = _position.x + avgDelta * cos(_position.theta);
-     *              newPos.y = _position.y + avgDelta * sin(_position.theta);
-     *              newPos.theta = _position.theta + deltaThetaRad;
+     *              newPos.x = currPos.x + avgDelta * cos(currPos.theta);
+     *              newPos.y = currPos.y + avgDelta * sin(currPos.theta);
+     *              newPos.theta = currPos.theta + deltaThetaRad;
      *              
-     *              // 5. Commit update (thread-safe)
-     *              if (xSemaphoreTake(_positionMutex, ...)) {
-     *                  _position = newPos;
-     *                  xSemaphoreGive(_positionMutex);
-     *              }
+     *              SetPosition(newPos);
      *          }
-     *          ```
-     *
-     * @return void
+     *          @endcode
      *
      * @note **Called Periodically:** This method is invoked by OdometryTask() at the configured
      *       frequency. Default 1000 Hz means it's called 1000 times per second (~1 ms interval).
@@ -495,7 +481,7 @@ private:
      *       This reduces quantization noise from discrete encoder counts.
      *
      * @warning **Thread Safety:** This method is called from the odometry task but may run
-     *          concurrently with calls to GetPosition()/SetPosition() which acquire the mutex.
+     *          concurrently with calls to GetPosition() / SetPosition() which acquire the mutex.
      *          Use SetPosition() internally or acquire _positionMutex when updating _position.
      *
      * @warning **Sensor Readiness:** Assumes all sensors are started and ready.

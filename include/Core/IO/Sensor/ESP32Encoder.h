@@ -74,11 +74,10 @@ namespace Motion::Core::IO {
 class ESP32Encoder;
 
 /**
- * @relates ESP32Encoder
  * @brief Smart handle for ESP32 Encoder instances.
- * @details Uses shared_ptr for automatic lifetime management.
+ * @details Uses smart pointers for automatic lifetime management.
  */
-using ESP32EncoderHandle = SensorPointer(ESP32Encoder);
+using ESP32EncoderHandle = SensorPointer(Motion::Core::IO::ESP32Encoder);
 
 class ESP32Encoder : public GenericEncoder {
 public:
@@ -95,7 +94,7 @@ public:
      *               - pinB: GPIO for Phase B signal (direction control)
      *               Must satisfy: pinA != pinB
      *
-     * @return ESP32EncoderHandle Shared pointer to the encoder instance.
+     * @return ESP32EncoderHandle smart pointer to the encoder instance.
      *
      * @throws std::invalid_argument if config.pinA == config.pinB
      *
@@ -175,8 +174,6 @@ public:
      * @details Disables the PCNT counter, removes the ISR handler, and releases the PCNT unit.
      *          After Stop(), the encoder is non-functional until Start() is called again.
      *
-     * @return void
-     *
      * @post The PCNT unit is released:
      *       - Counter is paused
      *       - ISR is unregistered
@@ -253,17 +250,10 @@ private:
      * @param arg Pointer to the ESP32Encoder instance (passed during ISR registration).
      *
      * @note **IRAM Context:** This function runs in ISR context (interrupt handler).
-     *       It must be minimal and fast (microseconds). IRAM_ATTR places code in fast memory.
+     *       It's minimal and fast (microseconds). IRAM_ATTR places code in fast memory.
      *
      * @note **Atomic Operation:** Overflow counter is std::atomic<int16_t>, so increment/decrement
      *       is atomic and thread-safe without explicit locking.
-     *
-     * @note **Frequency:** Overflow occurs approximately once every 8.2 rotations at 1 MHz input
-     *       (250 kHz base tick rate). For a moving robot, overflows occur every second or so.
-     *       ISR overhead is negligible.
-     *
-     * @warning **ISR Safety:** Avoid calling blocking operations or complex logic in the ISR.
-     *          Only atomic operations are used; safe for FreeRTOS tasks waiting on data.
      */
     static void IRAM_ATTR isr_handler(void *arg);
 

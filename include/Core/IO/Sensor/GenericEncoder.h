@@ -170,11 +170,10 @@ protected:
 };
 
 /**
- * @relates GenericEncoder
  * @brief Smart handle for Encoder instances.
- * @details Uses shared_ptr for automatic lifetime management and reference counting.
+ * @details Uses smart pointers for automatic lifetime management and reference counting.
  *          Recommended for ownership and passing encoders through the application.
  */
-using GenericEncoderHandle = SensorPointer(GenericEncoder);
+using GenericEncoderHandle = SensorPointer(Motion::Core::IO::GenericEncoder);
 
 } // namespace Motion::Core::IO

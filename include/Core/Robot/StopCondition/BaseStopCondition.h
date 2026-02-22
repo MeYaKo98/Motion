@@ -11,11 +11,7 @@
 
 namespace Motion::Core::Robot {
 
-#ifdef DOXYGEN
-#define StopConditionPointer(T) T*
-#else
 #define StopConditionPointer(T) std::shared_ptr<T>
-#endif
 
 /**
  * @brief Abstract base class defining the interface for motion stop conditions.
@@ -127,8 +123,6 @@ public:
      *          - Time references (start time for timeout conditions)
      *          - Flags (e.g., "first call" indicator)
      *          - Accumulated error or history buffers
-     *
-     * @return void
      *
      * @post After calling this method, the stop condition should be in a "fresh" state,
      *       ready to evaluate a new motion sequence as if it were just constructed.

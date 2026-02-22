@@ -72,7 +72,7 @@ public:
      *              (e.g., m/s if distances are in meters).
      *              Typical range: 0.1 to 100 (application-dependent).
      *
-     * @return StepProfileGeneratorHandle A shared pointer to the new profile generator.
+     * @return StepProfileGeneratorHandle A smart pointer to the new profile generator.
      *
      * @note **Zero Speed:** If speed = 0.0f, the robot will not move (velocity = 0).
      *       This is valid but unusual; typically used for debugging.
@@ -109,8 +109,6 @@ public:
      *                 Positive values move forward; negative values move backward.
      *                 The distance is used to validate progress in CalculateValue().
      *                 Units must be consistent with the speed configured during creation.
-     *
-     * @return void
      *
      * @post `_distance` is set to the provided value.
      *       Subsequent calls to CalculateValue() will be bounded by this distance.

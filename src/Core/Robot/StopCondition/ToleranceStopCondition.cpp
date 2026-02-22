@@ -1,5 +1,5 @@
 /**
- * @file TolerenceStopCondition.cpp
+ * @file ToleranceStopCondition.cpp
  * @brief  A stop condition conditon that returns true if error is under tolerence value.
  */
 

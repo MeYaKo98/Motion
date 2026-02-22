@@ -14,11 +14,7 @@
 
 namespace Motion::Core::IO {
 
-#ifdef DOXYGEN
-#define ActuatorPointer(T) T*
-#else
 #define ActuatorPointer(T) std::shared_ptr<T>
-#endif
 
 /**
  * @brief Non-template base interface for generic actuator management.
@@ -124,8 +120,6 @@ public:
      *          - Disable PWM or other peripherals
      *          - Save state if needed
      *
-     * @return void
-     *
      * @post The actuator is in a safe, stopped state (e.g., motor not moving).
      * @post Resources are released and available for other applications.
      * @post Subsequent calls to SetCommand() will have no effect until Start() is called.
@@ -150,8 +144,6 @@ public:
      *
      * @param[out] buffer Pointer to the output buffer where the serialized command will be copied.
      *                    The buffer is allocated and managed by the caller.
-     *
-     * @return void
      *
      * @pre The `buffer` pointer must point to valid, allocated memory.
      * @post The binary representation of the last command value is written to `buffer`.

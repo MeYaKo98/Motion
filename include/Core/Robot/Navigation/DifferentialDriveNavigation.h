@@ -12,6 +12,10 @@
 
 namespace Motion::Core::Robot {
 
+class DifferentialDriveNavigation;
+
+using DifferentialDriveNavigationHandle = NavigationPointer(DifferentialDriveNavigation);
+
 /**
  * @brief A concrete navigation system for differential drive robots.
  * @details This class implements the complete navigation logic for a differential drive robot,
@@ -25,12 +29,12 @@ namespace Motion::Core::Robot {
  *          **Motion Execution Flow:**
  *          1. User calls Move(distance) or other motion command
  *          2. Profile generator creates smooth velocity profile for the distance
- *          3. Control loop repeatedly:
- *             a. Reads current robot position from odometry
- *             b. Calculates remaining distance/angle error
- *             c. Generates control command via PID controller based on position error
- *             d. Commands motors with computed command
- *             e. Checks stop condition
+ *          3. Control loop repeatedly:  
+ *             a. Reads current robot position from odometry  
+ *             b. Calculates remaining distance/angle error  
+ *             c. Generates control command via PID controller based on position error  
+ *             d. Commands motors with computed command  
+ *             e. Checks stop condition  
  *          4. When stop condition met, motion completes and function returns
  *
  *          **Differential Drive Kinematics:**
@@ -38,10 +42,6 @@ namespace Motion::Core::Robot {
  *          - Straight motion: Both wheels at same speed
  *          - Turning: Wheels at different speeds
  *          - Spinning: Wheels at opposite speeds
- *
- *          **Implementation Status:**
- *          The current implementation has placeholder methods marked with @todo.
- *          The actual control loop logic must be implemented in Move(), Turn(), MoveTo(), and Orient().
  *
  * @note **Real-Time Performance:** The motion commands are blocking calls. For non-blocking
  *       behavior, call from separate FreeRTOS tasks or implement task-based motion scheduling.
@@ -53,18 +53,13 @@ namespace Motion::Core::Robot {
  *       - Surface friction (loss on slippery surfaces)
  *       - Motor response linearity (non-linear response causes drift)
  *
- * @note **Tuning Required:** PID controller gains must be tuned for your specific robot hardware.
- *       Use classic tuning methods (Ziegler-Nichols) or empirical trial-and-error.
+ * @note **Tuning Required:** Controller gains must be tuned for your specific robot hardware.
  *
  * @see BaseNavigation for the abstract interface
  * @see GenericDifferentialDriveNavigation for the generic implementation
- * @see DifferentialDriveOdometry for the odometry system
- * @see PIDController for the motion controller
+ * @see GenericDifferentialDriveOdometry for the odometry system
+ * @see BaseController for the motion controller
  */
-class DifferentialDriveNavigation;
-
-using DifferentialDriveNavigationHandle = NavigationPointer(DifferentialDriveNavigation);
-
 class DifferentialDriveNavigation : public GenericDifferentialDriveNavigation{
 public:
 
@@ -98,13 +93,13 @@ public:
      *       silently failing at runtime.
      *
      * @note **Typical Usage:**
-     *       ```cpp
+     *       @code
      *       auto odometry = DifferentialDriveOdometry::Create(wheelSpacing, rightWheel, leftWheel);
      *       auto profile = TrapezoidalProfileGenerator::Create(2.0f, 1.0f);
      *       auto stopCondition = ToleranceStopCondition::Create(0.01f);
      *       DifferentialDriveMotorConfig config = {rightMotor, leftMotor, rightCtrl, leftCtrl};
      *       auto nav = DifferentialDriveNavigation::Create(odometry, profile, stopCondition, config);
-     *       ```
+     *       @endcode
      *
      * @warning **Dependency Lifetime:** All passed handles must remain valid for the entire
      *          lifetime of the navigation system. If any dependency is deleted externally,
@@ -131,7 +126,7 @@ public:
      *          profile generator, and motor controllers to achieve smooth, controlled motion.
      *
      *          **Algorithm (Pseudo-code):**
-     *          ```
+     *          @code
      *          Set initial position from odometry
      *          Generate velocity profile for the distance
      *          While not at target:
@@ -145,14 +140,12 @@ public:
      *              If stopCondition->ShouldExit(position_error):
      *                  break
      *          Stop motors
-     *          ```
+     *          @endcode
      *
      * @param distance The distance to move.
      *                 - Positive values: Move forward (along current heading)
      *                 - Negative values: Move backward (opposite current heading)
      *                 - Units: Same as wheel radius (typically meters)
-     *
-     * @return void
      *
      * @note **Relative Motion:** This command is relative to the robot's current position.
      *       Multiple calls accumulate: Move(1.0f) twice moves 2.0 total.
@@ -165,19 +158,17 @@ public:
      *       - Move(1.0f): Robot drives 1 meter forward
      *       - Move(-1.0f): Robot drives 1 meter backward
      *
-     * @note **Speed Control:** The actual speed profile is determined by the TrapezoidalProfileGenerator
+     * @note **Speed Control:** The actual speed profile is determined by the ProfileGenerator
      *       configured for this navigation system. It respects acceleration and velocity limits.
-     *
-     * @warning **Implementation Status:** This method currently contains only logging and placeholder
-     *          code (marked @todo). The actual control loop logic must be implemented.
-     *
+     * 
      * @warning **Odometry Dependency:** Motion accuracy depends critically on odometry accuracy.
      *          Wheel slipping, encoder errors, or surface properties cause position drift.
      *          For long distances, consider using intermediate checkpoints or external localization.
      *
      * @warning **Obstacle Collision:** This method does not check for obstacles.
      *          Ensure the path is clear before calling. Collisions will cause the robot
-     *          to stall against the obstacle (potentially damaging hardware).
+     *          to stall against the obstacle (potentially damaging hardware). It is possible to
+     *          incorporate the collision detection in a stop condition by the user.
      *
      * @warning **Zero Distance:** Calling Move(0.0f) may cause unexpected behavior
      *          (immediate return or no motion). Avoid zero distances.
@@ -206,10 +197,7 @@ public:
      * @param angle The relative angle to turn.
      *              - Positive: Counter-clockwise rotation (depends on motor wiring convention)
      *              - Negative: Clockwise rotation
-     *              - Units: Radians (typical) or degrees (depends on implementation)
-     *              - Typical magnitude: 0.1 to 2π radians
-     *
-     * @return void
+     *              - Units: Radians
      *
      * @note **Relative Rotation:** This command rotates relative to the robot's current heading.
      *       Multiple calls accumulate: Turn(π/2) twice rotates π radians total.
@@ -226,9 +214,6 @@ public:
      *
      * @note **Speed Profile:** The actual angular velocity profile uses the same motion profile
      *       generator configured for the navigation system, ensuring smooth acceleration.
-     *
-     * @warning **Implementation Status:** Currently contains placeholder code (@todo).
-     *          Real control loop must be implemented to achieve actual rotation.
      *
      * @warning **Gyro Drift:** Without external heading feedback (magnetometer, IMU),
      *          repeated rotation errors accumulate. For long operation, periodically correct
@@ -253,27 +238,24 @@ public:
     /** 
      * @brief Moves the robot to a specific absolute coordinate on the global map.
      * @details Computes the necessary translation and rotation to reach the target (x, y)
-     *          position in the global coordinate frame. Typically implements a "turn then move"
+     *          position in the global coordinate frame. Implements a "turn then move"
      *          strategy: first rotate to face the target, then move straight to it.
      *
      *          **Algorithm Concept:**
-     *          ```
+     *          @code
      *          delta_x = target_x - current_x
      *          delta_y = target_y - current_y
      *          target_distance = sqrt(delta_x² + delta_y²)
      *          target_heading = atan2(delta_y, delta_x)
-     *          heading_error = target_heading - current_heading
-     *          Orient(heading_error)      // Rotate to face target
+     *          Orient(target_heading)     // Rotate to face target
      *          Move(target_distance)      // Move to target
-     *          ```
+     *          @endcode
      *
      * @param x The target X coordinate in the global (world) frame.
      *          Units: Same as wheel radius and odometry (typically meters).
      *
      * @param y The target Y coordinate in the global (world) frame.
      *          Units: Same as wheel radius and odometry (typically meters).
-     *
-     * @return void
      *
      * @note **Absolute Positioning:** Unlike Move(), this command specifies an absolute
      *       position. The robot will attempt to reach exactly (x, y) regardless of where it started.
@@ -289,9 +271,6 @@ public:
      *       intermediate waypoints. This reduces accumulated odometry error by periodically
      *       resetting the target.
      *
-     * @warning **Implementation Status:** Currently contains placeholder code (@todo).
-     *          Actual waypoint and turn+move logic must be implemented.
-     *
      * @warning **Odometry Accumulation:** Odometry errors accumulate over distance.
      *          For moves > 10 meters, significant drift is expected without correction.
      *          Periodically use absolute localization (vision, markers, GNSS) to correct position.
@@ -301,7 +280,7 @@ public:
      *
      * @warning **Unreachable Targets:** If the target is outside the robot's operating space
      *          or permanently blocked by obstacles, the robot will fail to reach it and may
-     *          exhibit timeout or stalling behavior.
+     *          exhibit timeout or stalling behavior (depending on the stop condition).
      *
      * @see Move() for relative positioning
      * @see Orient() for heading-only rotation
@@ -316,11 +295,11 @@ public:
      *          The robot takes the shortest rotation path to reach the target heading.
      *
      *          **Algorithm:**
-     *          ```
+     *          @code
      *          heading_error = target_angle - current_heading
      *          Normalize heading_error to [-π, π]  // Shortest path
      *          Turn(heading_error)                 // Execute relative turn
-     *          ```
+     *          @endcode
      *
      *          **Angle Normalization:**
      *          To always take the shortest rotation:
@@ -332,10 +311,8 @@ public:
      *              - Theta = 0: Robot facing along positive X-axis (right)
      *              - Theta = π/2: Robot facing along positive Y-axis (forward)
      *              - Theta = π/-π: Robot facing along negative X-axis (left)
-     *              - Theta = -π/2: Robot facing along negative Y-axis (backward)
-     *              Units: Radians (or degrees depending on conventions used)
-     *
-     * @return void
+     *              - Theta = -π/2: Robot facing along negative Y-axis (backward)  
+     *              Units: Radians
      *
      * @note **Absolute Heading:** This specifies an absolute target angle, not relative.
      *       Orient(0.0) sets heading to 0 regardless of current heading.
@@ -350,9 +327,6 @@ public:
      * @note **Wraparound Handling:** Handles angle wraparound correctly:
      *       - Rotating from 10° to 350° takes the short path (20° backward)
      *       - Not the long path (340° forward)
-     *
-     * @warning **Implementation Status:** Currently placeholder (@todo).
-     *          Shortest path selection and absolute heading logic must be implemented.
      *
      * @warning **Gyro Drift:** Repeated Orient() calls over time accumulate gyro/odometry drift.
      *          For long-term missions, periodically correct absolute heading using external

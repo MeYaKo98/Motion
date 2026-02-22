@@ -46,7 +46,6 @@ public:
      *          This is useful for telemetry, logging, and state synchronization across distributed systems.
      * @param[out] buffer The output buffer where the serialized command will be copied.
      *                    The buffer is expected to be allocated by the caller.
-     * @return void
      * @warning **Buffer Safety:** The caller must ensure that `buffer` is allocated with at least `sizeof(T)` bytes.
      *          Providing a smaller buffer will result in a **buffer overflow** and undefined behavior.
      *          Always verify: `buffer != nullptr` and `buffer_size >= sizeof(T)`.
@@ -106,7 +105,6 @@ protected:
      *          hardware communication protocol. It is called synchronously from `SetCommand()`, so derived
      *          class implementations should prioritize responsiveness.
      * @param command The command value to transmit to the hardware.
-     * @return void
      * @note **Implementation Requirement:** Derived classes **must** implement this method.
      *       Failing to do so will result in a linker error.
      * @note **Thread-safety:** The actual thread-safety of hardware transmission is determined by the
@@ -129,6 +127,6 @@ protected:
     T _command;
 };
 
-template <typename T> using BaseActuatorHandle = ActuatorPointer(BaseActuator<T>);
+template <typename T> using BaseActuatorHandle = ActuatorPointer(Motion::Core::IO::BaseActuator<T>);
 
 } // namespace Motion::Core::IO

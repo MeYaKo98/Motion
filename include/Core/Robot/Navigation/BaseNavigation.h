@@ -15,11 +15,7 @@
 
 namespace Motion::Core::Robot {
 
-#ifdef DOXYGEN
-#define NavigationPointer(T) T*
-#else
 #define NavigationPointer(T) std::unique_ptr<T>
-#endif
 
 /**
  * @brief An abstract interface for navigation systems across different drive types.
@@ -60,8 +56,6 @@ public:
      *                 Units depend on the implementation (typically meters or cm).
      *                 Must be in the same units as the wheel radius.
      *
-     * @return void
-     *
      * @note **Units:** The unit of `distance` is determined by the encoder resolution and wheel radius
      *       used in the odometry system. Ensure consistency across all components.
      *
@@ -97,16 +91,14 @@ public:
      * @param angle The relative angle to turn.
      *              Positive values rotate counter-clockwise (CCW) by default.
      *              Negative values rotate clockwise (CW) by default.
-     *              Units depend on the implementation (typically radians or degrees).
-     *
-     * @return void
+     *              Units depend on the implementation (typically radians).
      *
      * @note **Coordinate System:** The sign convention for positive rotation depends on:
      *       - The coordinate frame convention (ROS uses counter-clockwise as positive)
      *       - The motor controller wiring (reversed wiring reverses the rotation direction)
      *       Document the convention used in your implementation.
      *
-     * @note **Units:** Typically radians in SI systems or degrees in traditional robotics.
+     * @note **Units:** Typically radians in SI systems.
      *       Ensure consistency with the odometry system.
      *
      * @note **Yaw Rotation:** In 2D navigation, this rotates around the Z-axis (yaw rotations),
@@ -151,8 +143,6 @@ public:
      * @param y The target Y coordinate in the global frame (world frame).
      *          Unit must match the distance units used in the odometry system.
      *
-     * @return void
-     *
      * @note **Coordinate Frame:** Assumes a standard 2D Cartesian frame with X right and Y forward
      *       (or as defined by the odometry system). Document the frame convention in your implementation.
      *
@@ -166,7 +156,7 @@ public:
      *       or waypoints to limit accumulated odometry error.
      *
      * @warning **Odometry Accumulation:** Odometry error accumulates over time. Long sequences of moves
-     *          cause drift. Periodically reset position using absolute localization (e.g., fiducials, vision).
+     *          cause drift. Periodically reset position using absolute localization (e.g., vision...).
      *
      * @warning **Target Unreachable:** If an obstacle is in the way, the robot will stall and possibly
      *          exceed the stop condition timeout. Always verify the path is clear before calling.
@@ -191,8 +181,6 @@ public:
      *              Unit depends on the implementation (typically radians, range [0, 2π] or [-π, π]).
      *              Angle = 0 typically means facing along the positive X-axis.
      *              Angle = π/2 means facing along the positive Y-axis (counter-clockwise).
-     *
-     * @return void
      *
      * @note **Angle Normalization:** This method should take the shortest rotation path.
      *       For example, rotating from 10° to 350° should rotate -20° (clockwise) not +340°.
@@ -247,10 +235,10 @@ protected:
      *          or angle smoothly and safely.
      *
      *          Typical usage in derived classes:
-     *          ```cpp
+     *          @code
      *          _profileGeneratorHandle->GenerateProfile(distance);
      *          float velocity = _profileGeneratorHandle->CalculateValue(progress);
-     *          ```
+     *          @endcode
      *
      * @note **Ownership:** The caller (typically the factory Create() method) retains ownership.
      *       This navigation instance only holds a reference.
@@ -267,11 +255,12 @@ protected:
      *          to determine when to exit the movement loop.
      *
      *          Typical usage in derived classes:
-     *          ```cpp
-     *          while (!_stopConditionHandle->ShouldExit(position_error)) {
+     *          @code
+     *          while (!_stopConditionHandle->ShouldExit(error))
+     *          {
      *              // Execute control loop iteration
      *          }
-     *          ```
+     *          @endcode
      *
      * @note **Ownership:** The caller retains ownership. This navigation instance holds a reference.
      * @warning **Null Check:** Always verify this is not nullptr before dereferencing.

@@ -33,7 +33,7 @@ namespace Motion::Core::Robot {
  */
 struct DifferentialDriveMotorConfig {
     /**
-     * @brief Smart pointer to the right wheel's motor (GenericMotor).
+     * @brief Smart pointer to the right wheel's motor (IO::GenericMotor).
      * @details Used to command the right motor during navigation operations.
      *          Receives speed commands (typically [-1.0, 1.0] normalized).
      * @note Must not be nullptr; factory validates this.
@@ -42,7 +42,7 @@ struct DifferentialDriveMotorConfig {
     Motion::Core::IO::GenericMotorHandle rightMotorHandle;
 
     /**
-     * @brief Smart pointer to the left wheel's motor (GenericMotor).
+     * @brief Smart pointer to the left wheel's motor (IO::GenericMotor).
      * @details Used to command the left motor during navigation operations.
      *          Receives speed commands (typically [-1.0, 1.0] normalized).
      * @note Must not be nullptr; factory validates this.
@@ -53,13 +53,6 @@ struct DifferentialDriveMotorConfig {
      * @brief Smart pointer to the right motor's feedback controller (BaseController).
      * @details Typically a PIDController that converts position/velocity error into motor commands.
      *          Closed-loop control ensures the motor maintains desired speed despite load variations.
-     *
-     *          **Control Loop:**
-     *          ```
-     *          error = targetVelocity - actualVelocity
-     *          motorCommand = controller->GenerateCommand(error)
-     *          rightMotor->SetCommand(motorCommand)
-     *          ```
      *
      * @note Must not be nullptr; factory validates this.
      * @note Each motor should have its own controller instance for independent tuning.
@@ -93,13 +86,13 @@ struct DifferentialDriveMotorConfig {
  *          This separation allows reusing common infrastructure across different implementations.
  *
  *          **Inheritance Hierarchy:**
- *          ```
+ *          @code
  *          BaseNavigation (abstract interface)
  *              ↑
  *          GenericDifferentialDriveNavigation (common differential drive logic)
  *              ↑
  *          DifferentialDriveNavigation (concrete implementation with motion algorithms)
- *          ```
+ *          @endcode
  *
  * @note **Protected Constructor:** GenericDifferentialDriveNavigation has a protected constructor,
  *       indicating it's meant to be a base class, not directly instantiated. Use DifferentialDriveNavigation
@@ -184,17 +177,11 @@ protected:
      *          - Correct odometry drift if needed (SetPosition())
      *          - Determine when motion is complete by comparing current to target position
      *
-     *          **Typical Usage in Derived Class:**
-     *          ```cpp
-     *          Position currentPos = _odometryHandle->GetPosition();
-     *          float positionError = targetPosition - currentPos.x;
-     *          ```
-     *
      * @note **Thread-Safe Access:** The odometry system's GetPosition() method is thread-safe.
      *       Safe to call from any FreeRTOS task.
      *
      * @note **Ownership:** Owned by the caller (typically the application's main setup).
-     *       The navigation system holds a shared_ptr reference.
+     *       The navigation system holds a smart pointer reference.
      */
     GenericDifferentialDriveOdometryHandle _odometryHandle;
 
@@ -207,10 +194,10 @@ protected:
      *          - leftControllerHandle: To generate control commands based on left wheel error
      *
      *          **Typical Usage in Derived Class:**
-     *          ```cpp
+     *          @code
      *          float rightCommand = _motorConfig.rightControllerHandle->GenerateCommand(rightError);
      *          _motorConfig.rightMotorHandle->SetCommand(rightCommand);
-     *          ```
+     *          @endcode
      *
      * @note **Immutable Structure:** The config is set at construction and should not be modified.
      *       If motor configuration changes, create a new navigation instance.

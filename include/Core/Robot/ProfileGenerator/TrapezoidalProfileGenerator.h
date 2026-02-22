@@ -61,7 +61,7 @@ public:
      *                 Must be positive and non-zero.
      *                 Typical range: 0.1 to 100 (application-dependent units).
      *
-     * @return TrapezoidalProfileGeneratorHandle A shared pointer to the new profile generator.
+     * @return TrapezoidalProfileGeneratorHandle A smart pointer to the new profile generator.
      *
      * @throws std::invalid_argument if acceleration == 0.0f
      * @throws std::invalid_argument if velocity == 0.0f
@@ -109,8 +109,6 @@ public:
      *                 negative distances move backward.
      *                 The sign is tracked for profile generation.
      *                 Must be non-zero for a valid profile.
-     *
-     * @return void
      *
      * @post Internal state (`_distance`, `_accelerationDistance`, `_peakReachableVelocity`) is updated.
      *       Subsequent calls to CalculateValue() will generate values based on this profile.

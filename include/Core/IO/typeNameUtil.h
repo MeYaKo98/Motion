@@ -132,7 +132,7 @@ constexpr const char* find_type_start(const char* s) {
  *
  * @example
  * Usage in the Motion Framework:
- * ```cpp
+ * @code
  * auto motor = ESP32DCMotor::Create("Left Motor", config);
  * // Internally calls: get_typename<float>()
  * // Stores: "float" as the command type
@@ -144,18 +144,8 @@ constexpr const char* find_type_start(const char* s) {
  * // Later, when serializing for telemetry:
  * printf("Motor type: %s\n", motor->GetDataType()); // Prints: "float"
  * printf("Encoder type: %s\n", encoder->GetDataType()); // Prints: "int32_t"
- * ```
- *
- * @example
- * Direct usage:
- * ```cpp
- * const char* floatName = get_typename<float>();  // "float"
- * const char* intName = get_typename<int>();      // "int"
+ * @endcode
  * 
- * // Custom type:
- * struct MyCommand { float speed, angle; };
- * const char* customName = get_typename<MyCommand>(); // "MyCommand"
- * ```
  */
 template <typename T>
 constexpr const char* get_typename() {

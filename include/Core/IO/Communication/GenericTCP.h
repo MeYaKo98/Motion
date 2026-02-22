@@ -15,7 +15,7 @@ namespace Motion::Core::IO {
  * @brief A generic implementation of a TCP/IP communication channel.
  * @details This class extends `BaseChannel` to provide a standardized abstraction for
  *          TCP socket communication over Ethernet or WiFi networks. It is a base class
- *          for platform-specific implementations (e.g., ESP32TCP, LinuxTCP) that handle
+ *          for platform-specific implementations (e.g., ESP32TCP) that handle
  *          the actual socket and network interface details.
  *
  *          **TCP Communication Context:**
@@ -118,12 +118,11 @@ protected:
 };
 
 /**
- * @brief Smart handle (shared_ptr) for GenericTCP instances.
+ * @brief Smart handle (smart pointer) for GenericTCP instances.
  * @details Manages the lifetime of TCP channel objects, enabling automatic cleanup
  *          and safe sharing among multiple subsystems.
  *
- * @note Using shared_ptr allows multiple parts of the application to reference the same
- *       TCP connection safely, with automatic resource cleanup when the last reference is released.
+ * @note Using smart pointers allows automatic resource cleanup when the last reference is released.
  */
 using GenericTCPHandle = ChannelPointer(GenericTCP);
 

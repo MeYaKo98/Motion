@@ -15,7 +15,7 @@ class ESP32TCP;
     
 /**
  * @brief Smart handle for ESP32TCP instances.
- * @details Uses shared_ptr for automatic lifetime management and safe reference counting.
+ * @details Uses smart pointers for automatic lifetime management and safe reference counting.
  */
 using ESP32TCPHandle = ChannelPointer(ESP32TCP);
 
@@ -23,8 +23,8 @@ using ESP32TCPHandle = ChannelPointer(ESP32TCP);
  * @brief ESP32 WiFi TCP communication channel using Arduino WiFi API.
  * @details This class implements TCP/IP networking on the ESP32 using the Arduino WiFi library.
  *          It provides a socket-based communication interface for transmitting and receiving data
- *          over Ethernet or WiFi networks. Common uses include remote teleoperation, wireless
- *          logging, inter-robot communication, and connection to cloud services.
+ *          over WiFi networks. Common uses include remote teleoperation, wireless logging, 
+ *          inter-robot communication, and connection to cloud services.
  *
  *          **ESP32 WiFi Hardware:**
  *          - Integrated WiFi (802.11 b/g/n) and Bluetooth dual-mode radio
@@ -46,19 +46,6 @@ using ESP32TCPHandle = ChannelPointer(ESP32TCP);
  *          4. Send/Read operate on the WiFiClient connection
  *          5. Disconnecting resets the client; next incoming connection accepted
  *
- *          **Typical Application Architecture:**
- *          ```
- *          Robot (ESP32)                      Remote Station (PC/Laptop)
- *          ================                   =========================
- *          WiFiServer (port 5000)             TCP Client (IP:5000)
- *          Listens for incoming connections
- *
- *          [Wait for connection] ... [TCP SYN, ACK handshake]
- *          [Connection established]           [Connected]
- *          [Read command packets]   <---[CMD]
- *          [Send telemetry packets] <---[TELEM]
- *          ```
- *
  * @note **Blocking Behavior:** WiFiServer::available() and WiFiClient::read() can block.
  *       For real-time applications, consider implementing non-blocking wrappers or
  *       running network I/O in a dedicated FreeRTOS task with appropriate priorities.
@@ -69,11 +56,11 @@ using ESP32TCPHandle = ChannelPointer(ESP32TCP);
  *
  * @note **Network Configuration:** Requires WiFi SSID and password setup. Typically done
  *       in setup() before creating ESP32TCP instance:
- *       ```cpp
- *       WiFi.begin("MY_SSID", "password");  // Connect to WiFi AP
- *       while (WiFi.status() != WL_CONNECTED) delay(100);
- *       // Now safe to create ESP32TCP server
- *       ```
+ * @code 
+ * WiFi.begin("MY_SSID", "password");  // Connect to WiFi AP
+ * while (WiFi.status() != WL_CONNECTED) delay(100);
+ * // Now safe to create ESP32TCP server
+ * @endcode
  *
  * @warning **WiFi Latency:** WiFi is inherently non-deterministic. Expect variable latency
  *          and occasional packet loss, even on good networks. Buffer or filter data accordingly.
@@ -98,26 +85,25 @@ public:
      *             Common choices for robotics: 5000, 8000, 9000-9999
      *             Avoid well-known ports (80, 443) and system-reserved ports (< 1024)
      *
-     * @return ESP32TCPHandle A shared_ptr to the newly created ESP32TCP instance.
+     * @return ESP32TCPHandle A smart pointer to the newly created ESP32TCP instance.
      *
      * @post The instance is created but **NOT started**. Call Start() to bind to the port
      *       and listen for incoming connections.
      *
      * @note **Usage Pattern:**
-     *       ```cpp
-     *       // Ensure WiFi is connected first
-     *       WiFi.begin("SSID", "password");
-     *       while (WiFi.status() != WL_CONNECTED) delay(100);
-     *
-     *       auto tcp = ESP32TCP::Create(5000);
-     *       if (tcp->Start()) {
-     *           // Now listening for connections
-     *           uint8_t cmd[10];
-     *           size_t len = tcp->Read(cmd, 10);  // Wait for client command
-     *           tcp->Send(cmd, len);               // Echo back
-     *       }
-     *       tcp->Stop();
-     *       ```
+     * @code
+     * // Ensure WiFi is connected first
+     * WiFi.begin("SSID", "password");
+     * while (WiFi.status() != WL_CONNECTED) delay(100);
+     * auto tcp = ESP32TCP::Create(5000);
+     * if (tcp->Start()) {
+     *       // Now listening for connections
+     *       uint8_t cmd[10];
+     *       size_t len = tcp->Read(cmd, 10);   // Wait for client command
+     *       tcp->Send(cmd, len);               // Echo back
+     * }
+     * tcp->Stop();
+     * @endcode
      *
      * @warning WiFi must be initialized and connected before creating ESP32TCP.
      *          Ensure `WiFi.begin()` has been called and `WiFi.status() == WL_CONNECTED`
@@ -171,8 +157,7 @@ public:
      *       transparently; the caller doesn't need to explicitly accept connections.
      *
      * @note **Single Client Model:** Only one client connection is maintained at a time.
-     *       If a second client connects while one is active, the new connection queues.
-     *       When the first client disconnects, the next queued client is accepted.
+     *       If a second client connects while one is active, the new connection is rejected.
      *
      * @note **Idempotency:** Calling Start() multiple times is typically safe; the second
      *       call reconfigures the server and returns success.
@@ -229,8 +214,7 @@ public:
      * @note **TCP Reliability:** Unlike UDP, TCP guarantees:
      *       - In-order delivery (bytes arrive in the order sent)
      *       - Error detection (corrupted packets are retransmitted)
-     *       - Flow control (sender slows down if receiver is full)
-     *
+     *       - Flow control (sender slows down if receiver is full)  
      *       This makes TCP ideal for command/control data.
      *
      * @note **Buffering:** The WiFiClient maintains a transmit buffer (typically 512 or 4096 bytes).
@@ -375,8 +359,6 @@ public:
      * @details Closes the WiFiServer, disconnects any active WiFiClient,
      *          and releases network resources. After Stop(), the server is no longer listening
      *          and no clients can connect until Start() is called again.
-     *
-     * @return void
      *
      * @post The server is shut down:
      *       - WiFiServer stops listening

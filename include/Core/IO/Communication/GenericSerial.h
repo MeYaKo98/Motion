@@ -15,7 +15,7 @@ namespace Motion::Core::IO {
  * @brief A generic implementation of a serial communication channel.
  * @details This class extends `BaseChannel` to provide a standardized abstraction for
  *          serial (UART) communication. It is a base class for platform-specific implementations
- *          (e.g., ESP32Serial, ARMSerial) that handle the actual hardware details.
+ *          (e.g., ESP32Serial) that handle the actual hardware details.
  *
  *          **Serial Communication Context:**
  *          Serial communication (UART) is one of the most common communication protocols in embedded systems:
@@ -29,9 +29,6 @@ namespace Motion::Core::IO {
  *          - Debug output and logging
  *          - Command input from operator/PC
  *          - Data streaming for telemetry
- *
- * @note **Template vs. Non-Template:** This is a non-template base class because serial communication
- *       always deals with byte streams (uint8_t). Template specialization isn't needed.
  *
  * @note **Inheritance Chain:** GenericSerial → BaseChannel → abstract interface
  *
@@ -74,11 +71,12 @@ protected:
      *       Choose based on your cable length and data volume requirements.
      *
      * @note **Typical Usage in Derived Classes:**
-     *       ```cpp
-     *       class ESP32Serial : public GenericSerial {
-     *           ESP32Serial(uint32_t baudRate) : GenericSerial(baudRate) { }
-     *       };
-     *       ```
+     * @code
+     * class ESP32Serial : public GenericSerial
+     * {
+     *     ESP32Serial(uint32_t baudRate) : GenericSerial(baudRate) { }
+     * };
+     * @endcode
      *
      * @warning **Baud Rate Mismatch:** If the configured baud rate doesn't match the receiving device's
      *          baud rate, communication will fail with garbled data. Always verify baud rate configuration.
@@ -99,11 +97,9 @@ protected:
 };
 
 /**
- * @brief Smart handle (shared_ptr) for GenericSerial instances.
+ * @brief Smart handle (smart pointer) for GenericSerial instances.
  * @details Manages the lifetime of serial channel objects, enabling automatic cleanup
  *          when the last reference is destroyed. Recommended for use throughout the application.
- *
- * @note Using shared_ptr allows multiple subsystems to reference the same serial port safely.
  */
 using GenericSerialHandle = ChannelPointer(GenericSerial);
 

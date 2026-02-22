@@ -93,7 +93,7 @@ public:
      * @throws std::invalid_argument if either wheel handle is nullptr
      *
      * @note **Typical Usage:**
-     *       ```cpp
+     *       @code
      *       // Create wheels with encoders
      *       auto rightEncoder = ESP32Encoder::Create("Right Encoder", {GPIO_A, GPIO_B});
      *       auto leftEncoder = ESP32Encoder::Create("Left Encoder", {GPIO_C, GPIO_D});
@@ -107,7 +107,7 @@ public:
      *       rightWheel->Start();
      *       leftWheel->Start();
      *       odometry->Start(100); // 100 Hz updates
-     *       ```
+     *       @endcode
      *
      * @warning **Wheel Lifetime:** The wheels passed to this factory must remain valid for
      *          the entire lifetime of the odometry instance. If wheels are deleted externally,
@@ -128,7 +128,7 @@ public:
      *
      * @note **Wheel Lifetime:** This destructor does NOT delete the Wheel objects passed in the constructor.
      *       The wheels remain the responsibility of their original creator/owner. Using smart pointers
-     *       (shared_ptr) for wheels ensures they remain valid as long as any component references them.
+     *       for wheels ensures they remain valid as long as any component references them.
      *
      * @note **RAII Pattern:** Follows proper resource management: constructor acquires resources,
      *       destructor releases them.
@@ -141,7 +141,7 @@ protected:
      * @details Protected constructor; use the Create() factory method instead.
      *          Initializes the odometry system with physical robot parameters and wheel references.
      *
-     * @param wheelSpacing The distance between the wheels' contact points (track width) in meters.
+     * @param wheelSpacing The distance between the wheels' contact points (track width) typically in meters.
      *                     Critical parameter for accurate kinematics. Check measurement with tape measure.
      *
      * @param rightWheelHandle Smart pointer to the right Wheel. Used to read distance/speed via wheel->getDistance().
@@ -183,8 +183,6 @@ protected:
      *          rightSpeed = delta_right * frequency
      *          leftSpeed = delta_left * frequency
      *          ```
-     *
-     * @return void
      *
      * @note **Called Periodically:** Invoked by the background task at the configured frequency
      *       (e.g., 100-1000 Hz). Do not call directly; let the task handle it.

@@ -147,11 +147,10 @@ protected:
 };
 
 /**
- * @relates GenericDCMotor
  * @brief Smart handle for DC Motor instances.
- * @details Uses shared_ptr for automatic lifetime management.
+ * @details Uses smart pointers for automatic lifetime management.
  *          Recommended for all motor ownership and passing through the application.
  */
-using GenericDCMotorHandle = ActuatorPointer(GenericDCMotor);
+using GenericDCMotorHandle = ActuatorPointer(Motion::Core::IO::GenericDCMotor);
 
 } // namespace Motion::Core::IO

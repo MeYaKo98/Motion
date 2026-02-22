@@ -10,11 +10,7 @@
 
 #include "Core/Diagnostics/Logger.h"
 
-#ifdef DOXYGEN
-#define ControllerPointer(T) T*
-#else
 #define ControllerPointer(T) std::shared_ptr<T>
-#endif
 
 namespace Motion::Core::Robot {
 
@@ -43,7 +39,6 @@ public:
      *          - Previous error values used for derivative calculations
      *          - Low-pass filter buffers
      *          - Any internal counters or timers
-     * @return void
      * @note **Timing:** Call this method early in the initialization sequence, before the control loop starts.
      *       Calling it during active control may introduce discontinuities.
      * @note **Side Effects:** After reset, the first call to `GenerateCommand()` may produce an atypical
