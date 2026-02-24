@@ -1,25 +1,33 @@
 /**
  * @file PIDController.cpp
- * @brief  A closed loop PID controller for Actuator.
+ * @brief Implementation of the PID Controller for closed-loop actuator control.
  */
 
 #include "Core/Robot/Controller/PIDController.h"
 
 namespace Motion::Core::Robot {
 
-PIDController::PIDController(PIDCoefficient coefficient, float max, float min) :
-    _coefficient(coefficient), _integral(0), _lastError(0), BaseController (max, min)  {}
-
-PIDController::~PIDController() {}
-
 PIDControllerHandle PIDController::Create(PIDCoefficient coefficient, float max, float min)
 {
-    if (coefficient.Kp < 0 || coefficient.Ki < 0 || coefficient.Kd < 0) throw std::invalid_argument("Coefficents must be positive");
-    if (coefficient.Kp == 0 && coefficient.Ki == 0 && coefficient.Kd == 0) throw std::invalid_argument("Coefficents must not be all zeros");
-    if (max < min) throw std::invalid_argument("Max must be greater than min");
+    if (coefficient.Kp < 0 || coefficient.Ki < 0 || coefficient.Kd < 0) 
+        throw std::invalid_argument("Coefficients must be positive");
+    if (coefficient.Kp == 0 && coefficient.Ki == 0 && coefficient.Kd == 0) 
+        throw std::invalid_argument("At least one coefficient must be non-zero");
+    if (max < min) 
+        throw std::invalid_argument("Max must be greater than or equal to min");
     return PIDControllerHandle(new PIDController(coefficient, max, min));
 }
 
+PIDController::~PIDController() {}
+
+PIDController::PIDController(PIDCoefficient coefficient, float max, float min) :
+    _coefficient(coefficient), _integral(0), _lastError(0), BaseController(max, min)  {}
+
+/**
+ * @brief Resets the internal PID state.
+ * @details Clears accumulated integral error and previous error for a fresh start.
+ *          Called before each new motion sequence.
+ */
 void PIDController::Reset() {
     _lastError = 0;
     _integral = 0;
@@ -27,13 +35,22 @@ void PIDController::Reset() {
 
 float PIDController::GenerateCommand(float error) {
     float command = 0;
+    
+    // Accumulate error for integral term
     _integral += error;
-    command = _coefficient.Kp * error + _coefficient.Ki * _integral + _coefficient.Kd * (_lastError - error);
+    
+    // Calculate PID output
+    command = _coefficient.Kp * error + _coefficient.Ki * _integral + _coefficient.Kd * (error - _lastError);
+    
+    // Update last error for derivative calculation
     _lastError = error;
-    if (command>_maxCommand)
+    
+    // Clamp output to valid range
+    if (command > _maxCommand)
         command = _maxCommand;
-    if (command<_minCommand)
+    if (command < _minCommand)
         command = _minCommand;
+    
     return command;
 }
 
