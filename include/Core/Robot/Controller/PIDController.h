@@ -111,19 +111,20 @@ public:
     void Reset() override;
 
     /**
-     * @brief Generates the command value based on the input error.
-     * @details Calculates and returns the PID control output based on the current error.
-     *          The algorithm performs the following steps:
-     *          1. Accumulate error: `_integral += error`
-     *          2. Calculate output: `Output = (Kp * error) + (Ki * _integral) + (Kd * (error - _lastError))`
-     *          3. Saturation clamping: clamp output to [_minCommand, _maxCommand]
-     *          4. Update state: `_lastError = error`
-     *          5. Return clamped output
+     * @brief Generates the command value based on the reference and reading.
+     * @details Calculates and returns the PID control output based on the error computed
+     *          from the difference between reference and reading. The algorithm performs
+     *          the following steps:
+     *          1. Calculate error: `error = reference - reading`
+     *          2. Accumulate error: `_integral += error`
+     *          3. Calculate output: `Output = (Kp * error) + (Ki * _integral) + (Kd * (error - _lastError))`
+     *          4. Saturation clamping: clamp output to [_minCommand, _maxCommand]
+     *          5. Update state: `_lastError = error`
+     *          6. Return clamped output
      *
-     * @param error The difference between the target setpoint and the actual measured value.
-     *              Positive error typically indicates the actuator should increase output.
-     *              Negative error indicates the actuator should decrease output.
-     *              Error = setpoint - actual.
+     * @param reference The target setpoint or desired value.
+     *                  Example: desired speed, target position, etc.
+     * @param reading The actual measured value from the sensor.
      * @return float The computed control output, clamped within the [min, max] range.
      *               This value is ready to send directly to the actuator.
      *               
@@ -134,6 +135,7 @@ public:
      *
      * @note **Output Calculation:** 
      * @code
+     * error = reference - reading
      * output = (Kp * error) + (Ki * integral) + (Kd * (error - error_last))
      * output = clamp(output, min, max)
      * @endcode
@@ -157,7 +159,7 @@ public:
      * @see Reset()
      * @see BaseController::GenerateCommand()
      */
-    float GenerateCommand(float error) override;
+    float GenerateCommand(float reference, float reading) override;
 
 protected:
     /**

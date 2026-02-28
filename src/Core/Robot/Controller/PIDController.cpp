@@ -33,7 +33,9 @@ void PIDController::Reset() {
     _integral = 0;
 }
 
-float PIDController::GenerateCommand(float error) {
+float PIDController::GenerateCommand(float reference, float reading) {
+    // Calculate error from reference and reading
+    float error = reference - reading;
     float command = 0;
     
     // Accumulate error for integral term

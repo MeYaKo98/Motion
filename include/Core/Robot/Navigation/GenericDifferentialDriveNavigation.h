@@ -195,7 +195,7 @@ protected:
      *
      *          **Typical Usage in Derived Class:**
      *          @code
-     *          float rightCommand = _motorConfig.rightControllerHandle->GenerateCommand(rightError);
+     *          float rightCommand = _motorConfig.rightControllerHandle->GenerateCommand(rightReference, rightReading);
      *          _motorConfig.rightMotorHandle->SetCommand(rightCommand);
      *          @endcode
      *

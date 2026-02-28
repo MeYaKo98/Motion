@@ -48,14 +48,17 @@ public:
     virtual void Reset() = 0;
 
     /**
-     * @brief Generates a control command based on the provided error.
-     * @details This is the main control algorithm. It takes the current error (difference between
-     *          setpoint and actual value) and computes the command to send to the actuator.
-     *          The command should be designed to minimize the error over time.
-     * @param error The difference between the setpoint and the actual measured value.
-     *              Mathematically: error = setpoint - actual_value.
-     *              The sign convention is important: positive error typically means "increase output",
-     *              negative error means "decrease output". Document this in derived classes.
+     * @brief Generates a control command based on the provided reference and reading.
+     * @details This is the main control algorithm. It takes the reference (setpoint) and actual
+     *          reading (measured value), computes the error as the difference between them,
+     *          and generates a command to send to the actuator. The command should be designed
+     *          to minimize the error over time.
+     * @param reference The target setpoint or desired value.
+     *                  Example: desired speed, target position, etc.
+     * @param reading The actual measured value from the sensor.
+     *               The error is calculated internally as: error = reference - reading.
+     *               The sign convention is important: positive error typically means "increase output",
+     *               negative error means "decrease output". Document this in derived classes.
      * @return float The computed control command output.
      *               The range and interpretation depend on the implementation:
      *               - For servo motors: typically [-1.0, 1.0] (normalized)
@@ -76,7 +79,7 @@ public:
      * @warning **Output Limits:** Ensure `_maxCommand` >= `_minCommand`. If not, the clamping logic
      *          will fail silently or produce undefined behavior.
      */
-    virtual float GenerateCommand(float error) = 0;
+    virtual float GenerateCommand(float reference, float reading) = 0;
 
 protected:
     /**

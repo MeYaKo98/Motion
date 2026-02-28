@@ -134,7 +134,7 @@ public:
      *              Remaining distance = target_distance - current_distance
      *              Velocity command = profile->CalculateValue(current_distance)
      *              Position error = remaining_distance
-     *              Motor command = controller->GenerateCommand(position_error)
+     *              Motor command = controller->GenerateCommand(command, current_velocity)
      *              SetCommand(right_motor, motor_command)
      *              SetCommand(left_motor, motor_command)
      *              If stopCondition->ShouldExit(position_error):
