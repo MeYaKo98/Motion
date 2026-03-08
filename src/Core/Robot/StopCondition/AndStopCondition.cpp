@@ -3,7 +3,7 @@
  * @brief A class for applying AND logical operation on a group of stop condition.
  */
 
-#include "Core/Robot/StopCondition/AndStopCondition.h"
+#include "Motion/Core/Robot/StopCondition/AndStopCondition.h"
 
 namespace Motion::Core::Robot {
 

@@ -3,7 +3,7 @@
  * @brief A Navigation Class for differential drive robot.
  */
 
-#include "Core/Robot/Navigation/DifferentialDriveNavigation.h"
+#include "Motion/Core/Robot/Navigation/DifferentialDriveNavigation.h"
 
 namespace Motion::Core::Robot {
 

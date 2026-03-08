@@ -1,4 +1,4 @@
-#include "Core/Robot/ProfileGenerator/TrapezoidalProfileGenerator.h"
+#include "Motion/Core/Robot/ProfileGenerator/TrapezoidalProfileGenerator.h"
 #include <cmath>
 
 namespace Motion::Core::Robot {

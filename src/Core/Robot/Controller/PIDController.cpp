@@ -3,7 +3,7 @@
  * @brief Implementation of the PID Controller for closed-loop actuator control.
  */
 
-#include "Core/Robot/Controller/PIDController.h"
+#include "Motion/Core/Robot/Controller/PIDController.h"
 
 namespace Motion::Core::Robot {
 

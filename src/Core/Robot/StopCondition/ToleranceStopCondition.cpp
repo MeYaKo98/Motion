@@ -3,7 +3,7 @@
  * @brief  A stop condition conditon that returns true if error is under tolerence value.
  */
 
-#include "Core/Robot/StopCondition/ToleranceStopCondition.h"
+#include "Motion/Core/Robot/StopCondition/ToleranceStopCondition.h"
 
 namespace Motion::Core::Robot {
 

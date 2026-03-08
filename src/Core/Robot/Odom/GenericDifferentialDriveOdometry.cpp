@@ -3,7 +3,7 @@
  * @brief A speed profile generator that returns constant speed.
  */
 
-#include "Core/Robot/Odom/GenericDifferentialDriveOdometry.h"
+#include "Motion/Core/Robot/Odom/GenericDifferentialDriveOdometry.h"
 
 namespace Motion::Core::Robot {
 

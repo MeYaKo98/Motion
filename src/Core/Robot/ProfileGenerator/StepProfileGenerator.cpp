@@ -3,7 +3,7 @@
  * @brief A speed profile generator that returns constant speed.
  */
 
-#include "Core/Robot/ProfileGenerator/StepProfileGenerator.h"
+#include "Motion/Core/Robot/ProfileGenerator/StepProfileGenerator.h"
 
 namespace Motion::Core::Robot {
 

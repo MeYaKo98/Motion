@@ -1,7 +1,7 @@
-#include "Core/IO/Communication/ESP32TCP.h"
+#include "Motion/Core/IO/Communication/ESP32TCP.h"
 #include "ESPmDNS.h"
 #include <mbedtls/md5.h> 
-#include <Core/Logger.h>
+#include "Motion/Core/Logger.h"
 
 namespace Motion::Core::IO {
 

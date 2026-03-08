@@ -3,7 +3,7 @@
  * @brief Encoder hardware interface for esp32.
  */
 
-#include "Core/IO/Sensor/ESP32Encoder.h"
+#include "Motion/Core/IO/Sensor/ESP32Encoder.h"
 
 namespace Motion::Core::IO {
 
