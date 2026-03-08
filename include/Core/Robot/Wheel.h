@@ -9,7 +9,7 @@
 #pragma once
 
 #include "Core/IO/Sensor/GenericEncoder.h"
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 #include <math.h>
 
 namespace Motion::Core::Robot {

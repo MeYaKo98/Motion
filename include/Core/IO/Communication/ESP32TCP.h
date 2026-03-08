@@ -389,6 +389,217 @@ public:
      */
     void Stop() override;
 
+    /**
+     * @brief Starts mDNS service discovery with a specified service name.
+     * @details Enables Multicast DNS (mDNS) service discovery on the ESP32.
+     *          Registers this TCP channel as a discoverable service on the local network
+     *          with the given service name. Remote devices can use standard mDNS queries
+     *          to discover this service without needing to know the IP address.
+     *
+     *          **mDNS Implementation Details:**
+     *          - Uses Arduino ESP32 mDNS API (ESPmDNS.h)
+     *          - Initializes mDNS with MDNS.begin(DeviceID)
+     *          - Registers service as "ServiceName._tcp" type (standard TCP service)
+     *          - Responds to multicast DNS queries on 224.0.0.251:5353
+     *          - Requires WiFi to be initialized and connected
+     *          - Static mDNS initialization is protected by FreeRTOS mutex
+     *          - Reference counting prevents multiple mDNS begin/end calls
+     *
+     *          **Discovery Propagation:**
+     *          - Service announcement takes ~1-2 seconds to propagate on the network
+     *          - Service remains registered as long as the ESP32 is running
+     *          - Automatically unregisters on WiFi disconnect
+     *
+     * @param ServiceName The human-readable service name (e.g., "robot-arm", "drone-01").
+     *                    - Maximum length: 63 characters (DNS label limit)
+     *                    - Valid characters: alphanumeric, hyphens, underscores
+     *                    - The pointer is stored internally; caller must ensure memory remains valid
+     *
+     * @return true if mDNS service discovery started successfully.
+     *         - Service name was stored internally
+     *         - mDNS was initialized (if first discovery call)
+     *         - Service was registered with mDNS
+     *         - Service is now discoverable on the local network
+     *
+     * @return false if discovery failed.
+     *         - Service name is nullptr or invalid
+     *         - mDNS initialization failed (e.g., network not ready)
+     *         - Service registration failed
+     *         - Insufficient memory for mDNS structures
+     *
+     * @post On success:
+     *       - Internal service name pointer updated to ServiceName
+     *       - mDNS service registered (static ref count incremented)
+     *       - mDNS is now announcing the service on the network
+     *       - StopDiscovery() must be called to unregister
+     *
+     * @post On failure:
+     *       - No state changes; safe to retry with a valid service name
+     *       - Service is not discoverable
+     *
+     * @note **Memory Safety:** The ServiceName pointer is stored directly, not copied.
+     *       Ensure the string remains valid for the entire discovery lifetime:
+     *       @code
+     *       esp32tcp->StartDiscovery("my-robot");              // OK: string literal
+     *       static const char svc[] = "robot-01";
+     *       esp32tcp->StartDiscovery(svc);                    // OK: static storage
+     *       @endcode
+     *
+     * @note **mDNS Initialization:** The first call to StartDiscovery() initializes the mDNS service.
+     *       MDNS.begin() is called once globally, subsequent calls are very fast.
+     *       The service is registered with MDNS.addService(ServiceName, "_tcp", port).
+     *
+     * @note **Reference Counting:** Multiple ESP32TCP instances can run mDNS simultaneously.
+     *       The static reference counter tracks active discoveries. The mDNS service is
+     *       terminated only when the last discovery is stopped (ref count reaches 0).
+     *
+     * @note **Thread-Safety:** Protected by a FreeRTOS mutex. Safe to call from any task context.
+     *       The mutex ensures atomic access to static mDNS state variables.
+     *
+     * @note **WiFi Dependency:** mDNS requires WiFi to be connected before registration.
+     *       Ensure `WiFi.status() == WL_CONNECTED` before calling StartDiscovery().
+     *
+     * @note **Service Type:** The service is registered as "ServiceName._tcp" to indicate
+     *       a TCP motion control service. Remote discovery tools will see it with this type.
+     *
+     * @warning **Service Name Persistence:** Once registered, the service name should be stable.
+     *          Frequent changes require repeated StopDiscovery() / StartDiscovery() cycles,
+     *          which may disrupt discovery for seconds.
+     *
+     * @warning **Network Multicast:** mDNS requires UDP multicast on port 5353.
+     *          Some WiFi networks or firewalls block multicast traffic. Ensure the network
+     *          allows multicast BEFORE calling StartDiscovery(), or discovery will silently fail.
+     *
+     * @warning **Port Conflicts:** If the TCP port (from Create()) is already in use,
+     *          StartDiscovery() may succeed but external connections will fail.
+     *          Use netstat to verify the port is available before calling Start().
+     *
+     * @see StartDiscovery() to re-enable discovery with the stored service name
+     * @see StopDiscovery() to unregister the service
+     * @see Start() to start the TCP server (discovery and TCP are independent)
+     */
+    bool StartDiscovery(const char* ServiceName) override;
+
+    /**
+     * @brief Re-enables mDNS discovery with the previously configured service name.
+     * @details Resumes mDNS service discovery using the service name from a previous
+     *          StartDiscovery(const char* ServiceName) call. This is a convenience function
+     *          to restart discovery without needing to re-specify the service name.
+     *
+     *          **Use Cases:**
+     *          - Pause discovery during WiFi reconnection, then resume
+     *          - Pause discovery to reduce network overhead, then resume
+     *          - Temporary shutdown of one service instance, then restart
+     *
+     * @return true if discovery was re-enabled successfully.
+     *         - Service is registered with mDNS again
+     *         - Uses the previously stored service name
+     *         - Service is now discoverable on the network
+     *
+     * @return false if re-enabling failed.
+     *         - No previous service name was set (StartDiscovery(const char*) never called)
+     *         - Service name pointer is nullptr
+     *         - mDNS registration failed
+     *         - WiFi is not connected
+     *
+     * @pre A prior successful call to StartDiscovery(const char* ServiceName) must have been made.
+     *      The service name pointer must still point to valid memory.
+     *
+     * @post On success:
+     *       - mDNS service re-registered with the stored name
+     *       - Service is discoverable on the network
+     *       - Existing TCP connections are NOT affected
+     *
+     * @post On failure:
+     *       - No state changes; safe to retry
+     *       - Service remains unregistered (if previously stopped)
+     *
+     * @note **Zero-Configuration:** This form eliminates the need to store and manage
+     *       the service name at the application layer. The name is managed internally.
+     *
+     * @note **Fast Operation:** Typically completes in < 1 ms. The mDNS infrastructure
+     *       is already initialized from the first StartDiscovery() call.
+     *
+     * @note **Thread-Safety:** Protected by FreeRTOS mutex. Safe from concurrent calls.
+     *
+     * @note **Idempotency:** Calling StartDiscovery() twice in succession (without StopDiscovery())
+     *       is safe; the second call confirms or updates the existing registration.
+     *
+     * @note **Multicast Requirement:** mDNS still requires network multicast support.
+     *       If the network was blocking multicast during the first StartDiscovery() call,
+     *       this call will also fail.
+     *
+     * @warning **Nullptr Service Name:** If called without a prior StartDiscovery(const char*),
+     *          the internal service name is nullptr. Calling this function in that case
+     *          will fail with return value false.
+     *
+     * @warning **Memory Validity:** The stored service name pointer must still be valid.
+     *          If the original string has been deallocated, behavior is undefined.
+     *          Ensure the service name has static or indefinite lifetime.
+     *
+     * @see StartDiscovery(const char* ServiceName) to set the service name initially
+     * @see StopDiscovery() to pause discovery
+     */
+    bool StartDiscovery() override;
+
+    /**
+     * @brief Stops mDNS service discovery and unregisters the service.
+     * @details Disables the mDNS service for this TCP channel.
+     *          The service is unregistered from the local network.
+     *          Remote devices will no longer discover this service.
+     *
+     *          **Resource Management:**
+     *          - Decrements the static discovery reference counter
+     *          - If this is the last active discovery (ref count reaches 0), mDNS is shut down via MDNS.end()
+     *          - mDNS shutdown is fast as the Arduino API handles resource cleanup
+     *          - Subsequent discoveries will require re-initialization via MDNS.begin()
+     *
+     *          **Network Impact:**
+     *          - Service removed from mDNS announcements
+     *          - Remote devices no longer see this service in discovery queries
+     *          - Existing TCP connections remain active and unaffected
+     *          - Remote clients with known IP addresses can still connect
+     *
+     * @post Service is no longer advertised:
+     *       - mDNS unregistered
+     *       - Internal reference counter decremented
+     *       - mDNS may be shut down (if ref count reaches 0)
+     *       - StartDiscovery() can be called again to re-register
+     *       - Existing TCP connections continue working
+     *
+     * @note **Connection Independence:** Stopping discovery does NOT interrupt existing TCP connections.
+     *       Clients that discovered the service earlier using the IP address can continue communicating.
+     *       Only new device discovery is affected.
+     *
+     * @note **Reference Counting:** The static reference counter allows multiple ESP32TCP
+     *       instances to manage mDNS resources. When the last instance calls StopDiscovery(),
+     *       mDNS is fully shut down. This prevents resource exhaustion with many instances.
+     *
+     * @note **Idempotency:** Calling StopDiscovery() multiple times is safe; subsequent calls
+     *       are no-ops if discovery is already stopped.
+     *
+     * @note **Mutex Protection:** Access to static mDNS state is protected by FreeRTOS mutex.
+     *       Safe to call from any task context.
+     *
+     * @note **Graceful Shutdown:** Recommended to call StopDiscovery() before Stop() during
+     *       clean shutdown. This allows mDNS to unregister properly.
+     *
+     * @note **Arduino MDNS:** Uses MDNS.end() from the Arduino ESP32 library.
+     *       The shutdown is managed by the Arduino core and is efficient.
+     *
+     * @warning **Does Not Close TCP:** StopDiscovery() stops NEW discovery attempts
+     *          but does NOT close existing TCP connections. To fully shut down,
+     *          call Stop() after StopDiscovery() if disconnection is required.
+     *
+     * @warning **Before TCP Stop:** Call StopDiscovery() before Stop() to ensure
+     *          mDNS is properly unregistered before the TCP channel is destroyed.
+     *
+     * @see StartDiscovery(const char* ServiceName) to restart discovery
+     * @see StartDiscovery() to re-enable with the stored service name
+     * @see Stop() to close the TCP server
+     */
+    void StopDiscovery() override;
+
 protected:
     /**
      * @brief Constructs an ESP32TCP server instance.
@@ -402,6 +613,94 @@ protected:
     ESP32TCP(uint16_t port);
 
 private:
+    /**
+     * @brief Static flag indicating whether mDNS service has been initialized.
+     * @details Tracks whether MDNS.begin() has been called. Used to avoid redundant
+     *          initialization across multiple ESP32TCP instances.
+     *
+     *          **Lifecycle:**
+     *          - false (initial): mDNS not yet initialized and no service registred
+     *          - true: MDNS.begin() has been called successfully at at least one service registred
+     *
+     * @note Protected by `_mdnsMutex` during access and modification.
+     * @note Initialized to false in the source file.
+     * @note Read/written only when _mdnsRefCount changes.
+     * @see _mdnsRefCount reference counting mechanism
+     * @see _mdnsMutex thread-safety protection
+     */
+    static bool _mdnsInitialized;
+
+    /**
+     * @brief Reference counter for active mDNS service registrations.
+     * @details Tracks the number of active ESP32TCP instances that have enabled discovery.
+     *          When the counter reaches 0, MDNS.end() is called to shut down mDNS.
+     *          When it becomes non-zero from 0, MDNS.begin() must be called.
+     *
+     *          **Counter Lifecycle:**
+     *          - 0: No discovery sessions active; mDNS can be shut down
+     *          - > 0: One or more discovery sessions active; keep mDNS running
+     *          - Incremented by StartDiscovery() and StartDiscovery(const char*)
+     *          - Decremented by StopDiscovery()
+     *          - Prevents multiple MDNS.begin() and MDNS.end() calls
+     *
+     *          **Scaling:**
+     *          - Supports up to INT_MAX concurrent discoveries (typical limit: 10-20)
+     *          - Each instance can only contribute +1 to the counter
+     *          - Calling StartDiscovery() multiple times on the same instance doesn't increase counter
+     *
+     * @note Protected by `_mdnsMutex` during read and modification.
+     * @note Reference counting is essential for safe resource management with multiple instances.
+     * @note Checked before calling MDNS.begin() or MDNS.end().
+     * @see _mdnsInitialized related initialization flag
+     * @see _mdnsMutex thread-safety protection
+     */
+    static int _mdnsRefCount;
+
+    /**
+     * @brief FreeRTOS mutex for protecting static mDNS state.
+     * @details Synchronizes access to mDNS static variables (`_mdnsInitialized`, `_mdnsRefCount`)
+     *          across multiple FreeRTOS tasks and ESP32TCP instances.
+     *
+     *          **Protection Scope:**
+     *          - `_mdnsInitialized` flag read/write
+     *          - `_mdnsRefCount` increment/decrement
+     *          - `MDNS.begin()` and `MDNS.end()` calls
+     *          - `MDNS.addService()` calls
+     *
+     *          **Lock Contention:**
+     *          - Low contention expected (typical: <10 instances)
+     *          - Hold time is brief (< 1 ms)
+     *          - No nested locks (deadlock-safe)
+     *
+     *          **Initialization:**
+     *          - Created once, statically allocated
+     *          - Initialize on first use pattern (lazy initialization)
+     *          - Ensure mutex is created before any discovery operations
+     *
+     * @note Using xSemaphoreCreateMutex() creates a binary semaphore acting as a mutex.
+     * @note Critical for preventing race conditions:
+     *       - Two threads calling StartDiscovery() simultaneously
+     *       - StartDiscovery() and StopDiscovery() from different tasks
+     *       - Accessing _mdnsRefCount during increment/decrement
+     *
+     * @note Typical usage pattern:
+     * @code
+     * xSemaphoreTake(_mdnsMutex, portMAX_DELAY);
+     * // Access/modify _mdnsInitialized or _mdnsRefCount
+     * xSemaphoreGive(_mdnsMutex);
+     * @endcode
+     *
+     * @warning Ensure the mutex is properly created before first discovery call.
+     *          Failure to create the mutex causes xSemaphoreTake() to block indefinitely.
+     *
+     * @warning Never call MDNS functions while holding the mutex for long operations.
+     *          MDNS functions may internally block. Keep critical section minimal.
+     *
+     * @see _mdnsInitialized variables needing protection
+     * @see _mdnsRefCount variables needing protection
+     */
+    static SemaphoreHandle_t _mdnsMutex;
+
     /**
      * @brief WiFi server instance (listens for incoming TCP connections).
      * @details Created in Start(), destroyed in Stop().

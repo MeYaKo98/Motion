@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 
 #define ControllerPointer(T) std::shared_ptr<T>
 

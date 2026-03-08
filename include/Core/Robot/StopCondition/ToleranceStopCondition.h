@@ -8,7 +8,7 @@
 #pragma once
 
 #include "Core/Robot/StopCondition/BaseStopCondition.h"
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 #include <cmath>
 
 namespace Motion::Core::Robot {

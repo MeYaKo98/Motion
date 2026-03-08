@@ -11,7 +11,7 @@
 #include <string.h>
 #include "Core/IO/Communication/BaseChannel.h"
 
-namespace Motion::Core::Diagnostics {
+namespace Motion::Core {
 
 /**
  * @enum LogLevel
@@ -126,27 +126,27 @@ private:
     LogLevel _minLevel;
 };
 
-} // namespace Motion::Core::Diagnostics
+} // namespace Motion::Core
 
 /**
  * @brief Macro to start the logger instance.
  * @see Logger::Start
  */
-#define LOG_START(...) Motion::Core::Diagnostics::Logger::GetInstance().Start(__VA_ARGS__)
+#define LOG_START(...) Motion::Core::Logger::GetInstance().Start(__VA_ARGS__)
 
 /**
  * @brief Internal base macro for logging.
  * @details Automatically captures the function name, file name, and line number.
  */
-#define _LOG_BASE(lvl, fmt, ...) Motion::Core::Diagnostics::Logger::GetInstance().Log(lvl, __FUNCTION__, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define _LOG_BASE(lvl, fmt, ...) Motion::Core::Logger::GetInstance().Log(lvl, __FUNCTION__, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
 
 /** @brief Logs a TRACE level message. */
-#define LOG_TRACE(fmt, ...) _LOG_BASE(Motion::Core::Diagnostics::LogLevel::TRACE, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) _LOG_BASE(Motion::Core::LogLevel::TRACE, fmt, ##__VA_ARGS__)
 /** @brief Logs a DEBUG level message. */
-#define LOG_DEBUG(fmt, ...) _LOG_BASE(Motion::Core::Diagnostics::LogLevel::DEBUG, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) _LOG_BASE(Motion::Core::LogLevel::DEBUG, fmt, ##__VA_ARGS__)
 /** @brief Logs an INFO level message. */
-#define LOG_INFO(fmt, ...)  _LOG_BASE(Motion::Core::Diagnostics::LogLevel::INFO,  fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)  _LOG_BASE(Motion::Core::LogLevel::INFO,  fmt, ##__VA_ARGS__)
 /** @brief Logs a WARN level message. */
-#define LOG_WARN(fmt, ...)  _LOG_BASE(Motion::Core::Diagnostics::LogLevel::WARN,  fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)  _LOG_BASE(Motion::Core::LogLevel::WARN,  fmt, ##__VA_ARGS__)
 /** @brief Logs an ERROR level message. */
-#define LOG_ERROR(fmt, ...) _LOG_BASE(Motion::Core::Diagnostics::LogLevel::ERROR, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) _LOG_BASE(Motion::Core::LogLevel::ERROR, fmt, ##__VA_ARGS__)

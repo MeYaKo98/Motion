@@ -1,5 +1,5 @@
 /**
- * @file Util.h
+ * @file Position.h
  * @brief Defines utility structures and types used throughout the robot motion framework.
  * @details Contains fundamental data structures representing robot state and configuration.
  */

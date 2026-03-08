@@ -11,7 +11,7 @@
 #include <memory>
 #include "Core/Robot/ProfileGenerator/BaseProfileGenerator.h"
 #include "Core/Robot/StopCondition/BaseStopCondition.h"
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 
 namespace Motion::Core::Robot {
 

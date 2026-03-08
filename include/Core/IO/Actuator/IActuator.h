@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <memory>
-#include <Core/Diagnostics/Logger.h>
+#include <Core/Logger.h>
 
 namespace Motion::Core::IO {
 

@@ -6,7 +6,7 @@
 
 #pragma once
 #include "BaseProfileGenerator.h"
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 
 namespace Motion::Core::Robot {
 

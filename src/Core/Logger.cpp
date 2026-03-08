@@ -1,9 +1,9 @@
-#include "Core/Diagnostics/Logger.h"
+#include "Core/Logger.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
 
-namespace Motion::Core::Diagnostics {
+namespace Motion::Core {
 
 bool Logger::Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel minLevel, uint32_t queueSize)
 {
@@ -107,4 +107,4 @@ void Logger::LogTask(void* pvParameters)
     }
 }
 
-} // namespace Motion::Core::Diagnostics
+} // namespace Motion::Core
