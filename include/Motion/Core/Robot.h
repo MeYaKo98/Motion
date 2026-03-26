@@ -22,6 +22,7 @@
 #include "Motion/Core/Robot/StopCondition/AndStopCondition.h"
 #include "Motion/Core/Robot/StopCondition/OrStopCondition.h"
 #include "Motion/Core/Robot/StopCondition/ToleranceStopCondition.h"
+#include "Motion/Core/Robot/StopCondition/ExternalStopCondition.h"
 
 /*--------------Navigation--------------*/
 #include "Motion/Core/Robot/Navigation/BaseNavigation.h"
