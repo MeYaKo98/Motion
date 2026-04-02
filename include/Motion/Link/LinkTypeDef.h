@@ -19,7 +19,7 @@ enum class Command : uint16_t{
     GetStatus,
     BridgeVersion,
     QueueStatus,
-    EmptyQueue,
+    ClearQueue,
     
     //Robot Specifc
     GetDrive = 0x20,

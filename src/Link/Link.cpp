@@ -87,7 +87,7 @@ void Link::AttachCallbacks<Link>(Link* object)
     );
 
     AttachFastCallback(
-        (uint16_t)Motion::Bridge::Command::EmptyQueue,
+        (uint16_t)Motion::Bridge::Command::ClearQueue,
         [](Motion::Bridge::Request* req, Motion::Bridge::Response* res)
         { 
             res->length = 0;
