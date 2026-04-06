@@ -122,6 +122,21 @@ public:
      */
     virtual ~GenericDifferentialDriveNavigation() = default;
 
+    /**
+     * @brief Smart pointer to the differential drive odometry system.
+     * @details Used by motion algorithms to:
+     *          - Read current robot position (GetPosition())
+     *          - Correct odometry drift if needed (SetPosition())
+     *          - Determine when motion is complete by comparing current to target position
+     *
+     * @note **Thread-Safe Access:** The odometry system's GetPosition() method is thread-safe.
+     *       Safe to call from any FreeRTOS task.
+     *
+     * @note **Ownership:** Owned by the caller (typically the application's main setup).
+     *       The navigation system holds a smart pointer reference.
+     */
+    GenericDifferentialDriveOdometryHandle _odometryHandle;
+
 protected:
     /**
      * @brief Constructs a new GenericDifferentialDriveNavigation instance.
@@ -169,21 +184,6 @@ protected:
         BaseStopConditionHandle stopConditionHandle,
         DifferentialDriveMotorConfig motorConfig)
         : _odometryHandle(odometryHandle), _motorConfig(motorConfig), BaseNavigation(profileGeneratorHandle, stopConditionHandle) {}
-
-    /**
-     * @brief Smart pointer to the differential drive odometry system.
-     * @details Used by motion algorithms to:
-     *          - Read current robot position (GetPosition())
-     *          - Correct odometry drift if needed (SetPosition())
-     *          - Determine when motion is complete by comparing current to target position
-     *
-     * @note **Thread-Safe Access:** The odometry system's GetPosition() method is thread-safe.
-     *       Safe to call from any FreeRTOS task.
-     *
-     * @note **Ownership:** Owned by the caller (typically the application's main setup).
-     *       The navigation system holds a smart pointer reference.
-     */
-    GenericDifferentialDriveOdometryHandle _odometryHandle;
 
     /**
      * @brief Configuration object holding motor and controller smart pointers.
