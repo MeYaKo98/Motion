@@ -35,7 +35,7 @@ bool Logger::Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel 
     _minLevel = minLevel;
     _outputHandle = channelHandle;
     
-    if (!xTaskCreatePinnedToCore(LogTask, "LoggerTask", 4096, this, 1, nullptr, 0))
+    if (!xTaskCreate(LogTask, "LoggerTask", 4096, this, 1, nullptr))
     {
         throw std::runtime_error("Failed to create the logger task");
         return false;

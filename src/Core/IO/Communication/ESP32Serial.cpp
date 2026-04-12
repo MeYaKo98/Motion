@@ -12,12 +12,7 @@ ESP32Serial::~ESP32Serial()
 
 ESP32SerialHandle ESP32Serial::Create(HardwareSerial& serial, uint32_t baudRate)
 {
-    if (baudRate == 0)
-    {
-        Serial.begin(912600);
-        Serial.println("Baud rate cannot be zero");
-        throw std::invalid_argument("Baud rate cannot be zero");
-    }
+    if (baudRate == 0) throw std::invalid_argument("Baud rate cannot be zero");
     return ESP32SerialHandle(new ESP32Serial(serial, baudRate));
 }
 
