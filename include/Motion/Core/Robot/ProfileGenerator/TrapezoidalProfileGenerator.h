@@ -61,26 +61,40 @@ public:
      *                 Must be positive and non-zero.
      *                 Typical range: 0.1 to 100 (application-dependent units).
      *
+     * @param minVelocity The minimum velocity magnitude to apply to calculated outputs.
+     *                    Prevents extremely slow speeds that may cause dead-band issues in motors.
+     *                    Must be positive. Typical range: 0.1 to 50 (same units as velocity).
+     *
      * @return TrapezoidalProfileGeneratorHandle A smart pointer to the new profile generator.
      *
      * @throws std::invalid_argument if acceleration == 0.0f
      * @throws std::invalid_argument if velocity == 0.0f
+     * @throws std::invalid_argument if minVelocity <= 0.0f
      *
-     * @note **Units:** acceleration and velocity must have consistent units.
+     * @note **Units:** acceleration, velocity, and minVelocity must have consistent units.
      *       If distance is in meters and time in seconds:
      *       - velocity in m/s (e.g., 1.0 for 1 m/s)
      *       - acceleration in m/s² (e.g., 2.0 for 2 m/s²)
+     *       - minVelocity in m/s (e.g., 0.05 for 50 mm/s minimum)
+     *
+     * @note **Minimum Velocity Purpose:** Motor control systems often have a minimum operating
+     *       velocity due to static friction or dead-band. Setting minVelocity ensures the profile
+     *       never instructs motion below this threshold, preventing stalls.
      *
      * @note **Usage Pattern:**
      *       ```cpp
-     *       auto profile = TrapezoidalProfileGenerator::Create(2.0f, 1.0f);
-     *       // 2.0 m/s² acceleration, 1.0 m/s max velocity
+     *       auto profile = TrapezoidalProfileGenerator::Create(2.0f, 1.0f, 0.1f);
+     *       // 2.0 m/s² acceleration, 1.0 m/s max velocity, 0.1 m/s minimum
      *       ```
      *
-     * @warning Passing zero or negative acceleration/velocity will throw an exception.
+     * @warning Passing zero or negative acceleration/velocity/minVelocity will throw an exception.
      *          Always validate external inputs before passing to Create().
+     *
+     * @warning **minVelocity >= velocity:** If minVelocity >= velocity, the profile will always
+     *          output minVelocity, never accelerating or decelerating. This is likely not intended.
+     *          Ensure minVelocity < velocity for normal behavior.
      */
-    static TrapezoidalProfileGeneratorHandle Create(float acceleration, float velocity);
+    static TrapezoidalProfileGeneratorHandle Create(float acceleration, float velocity, float minVelocity);
 
     /**
      * @brief Destroys the Trapezoidal Profile Generator.
@@ -157,17 +171,18 @@ public:
      * @return float The calculated target velocity at the given progress point.
      *               - **Positive (forward):** for forward motion
      *               - **Negative (backward):** for backward motion
-     *               - **Minimum magnitude:** Clamped to a minimum of 10.0f to prevent
+     *               - **Minimum magnitude:** Clamped to a minimum of _minVelocity to prevent
      *                 zero velocity (which can cause numerical issues in control loops)
      *
      *               Examples:
      *               - Return +1.5 for forward motion at 1.5 m/s
      *               - Return -1.5 for backward motion at 1.5 m/s
-     *               - Return ±10.0f (minimum) for very slow speeds
+     *               - Return ±_minVelocity (e.g., ±30.0f) for very slow speeds
      *
-     * @note **Minimum Velocity Clamp:** The output is clamped to a minimum magnitude of 10.0f.
-     *       This prevents very slow speeds that can cause numerical instability or motor
-     *       control dead-bands. Adjust this value if your application requires slower motion.
+     * @note **Minimum Velocity Clamp:** The output is clamped to a minimum magnitude of _minVelocity
+     *       (configured during Create()). This prevents very slow speeds that can cause numerical
+     *       instability or motor control dead-bands. Adjust this value during creation for different
+     *       motor characteristics or application requirements.
      *
      * @note **Continuity:** The output velocity is continuous (no jumps) even at phase boundaries.
      *       At the acceleration-cruise boundary, the transition is smooth.
@@ -187,7 +202,7 @@ public:
      * @warning **Pre-Condition:** GenerateProfile() must have been called before this method.
      *          If not, internal state is uninitialized and results are undefined.
      *
-     * @warning **Minimum Velocity Impact:** The 10.0f minimum clamp may prevent the profile
+     * @warning **Minimum Velocity Impact:** The _minVelocity clamp may prevent the profile
      *          from reaching exactly zero velocity. If zero velocity is required at the end,
      *          handle stopping separately in the control loop.
      *
@@ -204,17 +219,18 @@ protected:
     /**
      * @brief Constructs a new Trapezoidal Profile Generator.
      * @details Protected constructor; use the Create() factory method instead.
-     *          Initializes the generator with acceleration and velocity constraints.
+     *          Initializes the generator with acceleration, velocity, and minimum velocity constraints.
      *
      * @param acceleration The rate of acceleration. The absolute value is used.
      * @param velocity The maximum cruise velocity. The absolute value is used.
+     * @param minVelocity The minimum velocity magnitude to apply to outputs.
      *
-     * @post `_acceleration` and `_velocity` are initialized (using absolute values).
+     * @post `_acceleration`, `_velocity`, and `_minVelocity` are initialized (using absolute values).
      * @post The generator is ready for profile generation via GenerateProfile().
      *
      * @note This constructor is typically called by the Create() factory after validation.
      */
-    TrapezoidalProfileGenerator(float acceleration, float velocity);
+    TrapezoidalProfileGenerator(float acceleration, float velocity, float minVelocity);
 
     /** @brief Total distance of the current profile. Set by GenerateProfile(). */
     float _distance;
@@ -224,6 +240,9 @@ protected:
 
     /** @brief Configured maximum velocity (magnitude, always positive). */
     float _velocity;
+
+    /** @brief Minimum velocity magnitude to clamp CalculateValue() output. Prevents dead-band stalling. */
+    float _minVelocity;
     
     /** @brief Distance required to accelerate from 0 to peak velocity. Calculated by GenerateProfile(). */
     float _accelerationDistance;

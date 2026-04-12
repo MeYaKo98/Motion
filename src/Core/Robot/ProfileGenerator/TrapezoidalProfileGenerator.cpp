@@ -3,13 +3,14 @@
 
 namespace Motion::Core::Robot {
 
-TrapezoidalProfileGenerator::TrapezoidalProfileGenerator(float acceleration, float velocity)
-    : _acceleration(abs(acceleration)), _velocity(abs(velocity)) {}
+TrapezoidalProfileGenerator::TrapezoidalProfileGenerator(float acceleration, float velocity, float minVelocity)
+    : _acceleration(abs(acceleration)), _velocity(abs(velocity)), _minVelocity(abs(minVelocity)) {}
 
-TrapezoidalProfileGeneratorHandle TrapezoidalProfileGenerator::Create(float acceleration, float velocity) {
+TrapezoidalProfileGeneratorHandle TrapezoidalProfileGenerator::Create(float acceleration, float velocity, float minVelocity) {
     if (acceleration == 0.0f) throw std::invalid_argument("Acceleration and velocity cannot be zero");
     if (velocity == 0.0f) throw std::invalid_argument("Velocity cannot be zero");
-    return TrapezoidalProfileGeneratorHandle(new TrapezoidalProfileGenerator(acceleration, velocity));
+    if (minVelocity == 0.0f) throw std::invalid_argument("Minimum velocity cannot be zero");
+    return TrapezoidalProfileGeneratorHandle(new TrapezoidalProfileGenerator(acceleration, velocity, minVelocity));
 }
 
 void TrapezoidalProfileGenerator::GenerateProfile(float distance) {
@@ -49,8 +50,8 @@ float TrapezoidalProfileGenerator::CalculateValue(float progress) {
         outputVelocity = std::sqrt(2.0f * _acceleration * absoluteRemaining);
     }
 
-    if (outputVelocity < 10.0f) {
-        outputVelocity = 10.0f;
+    if (outputVelocity < _minVelocity) {
+        outputVelocity = _minVelocity;
     }
 
     return outputVelocity * sign;
