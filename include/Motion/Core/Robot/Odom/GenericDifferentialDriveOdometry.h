@@ -104,6 +104,15 @@ public:
      */
     DifferentialDriveState GetState();
 
+    /** 
+     * @brief The distance between the contact points of the two wheels (track width).
+     * @details Critical parameter for kinematic calculations. Used to convert differential
+     *          wheel speeds to robot heading rate: dtheta/dt = (v_right - v_left) / wheelSpacing
+     * @note Units must match wheel radius (typically meters).
+     * @note This value is constant; set during construction.
+     */
+    float _wheelSpacing;
+
 protected:
     /**
      * @brief Constructs a new GenericDifferentialDriveOdometry object.
@@ -156,15 +165,6 @@ protected:
      * @see GetState()
      */
     bool SetState(const DifferentialDriveState& newState);
-
-    /** 
-     * @brief The distance between the contact points of the two wheels (track width).
-     * @details Critical parameter for kinematic calculations. Used to convert differential
-     *          wheel speeds to robot heading rate: dtheta/dt = (v_right - v_left) / wheelSpacing
-     * @note Units must match wheel radius (typically meters).
-     * @note This value is constant; set during construction.
-     */
-    float _wheelSpacing;
 
     /** 
      * @brief Handle to the right wheel instance.

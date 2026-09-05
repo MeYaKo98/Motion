@@ -11,6 +11,8 @@
 #include <string.h>
 #include "Motion/Core/IO/Communication/BaseChannel.h"
 
+#define LOG_MESSAGE_MAX_SIZE 256
+
 namespace Motion::Core {
 
 /**
@@ -110,7 +112,7 @@ private:
      *          from the logging call site to the background worker task.
      */
     struct LogMessage {
-        char data[256]; /**< Buffer for the formatted log message including metadata. */
+        char data[LOG_MESSAGE_MAX_SIZE]; /**< Buffer for the formatted log message including metadata. */
         uint16_t length; /**< Length of the valid data in the buffer. */
     };
 

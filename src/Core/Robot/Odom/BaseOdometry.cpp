@@ -58,28 +58,19 @@ void BaseOdometry::OdometryTask(void* pvParameters) {
 }
 
 Position BaseOdometry::GetPosition() {
-    // Combine null check and semaphore take for cleaner flow
-    if (_positionMutex != nullptr && xSemaphoreTake(_positionMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-        Position result = _position;
-        xSemaphoreGive(_positionMutex);
-        return result;
-    }
-
-    LOG_WARN("BaseOdometry: Failed to lock position for reading");
-    return _position;
+    if (_positionMutex == nullptr) return _position;
+    while (xSemaphoreTake(_positionMutex, portMAX_DELAY) != pdTRUE);
+    Position result = _position;
+    xSemaphoreGive(_positionMutex);
+    return result;
 }
 
 bool BaseOdometry::SetPosition(const Position& newPosition) {
     if (_positionMutex == nullptr) return false;
-
-    if (xSemaphoreTake(_positionMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-        _position = newPosition;
-        xSemaphoreGive(_positionMutex);
-        return true;
-    }
-
-    LOG_ERROR("BaseOdometry: Failed to lock position for writing");
-    return false;
+    while (xSemaphoreTake(_positionMutex, portMAX_DELAY) != pdTRUE);
+    _position = newPosition;
+    xSemaphoreGive(_positionMutex);
+    return true;
 }
 
 void BaseOdometry::Stop() {
