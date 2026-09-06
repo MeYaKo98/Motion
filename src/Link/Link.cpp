@@ -52,12 +52,8 @@ bool Link::DetachCallback(uint16_t command)
     return false;
 }
 
-/**
- * @brief Registers the built-in Motion Link management commands.
- * @details Installs fast callbacks for status, bridge version, queue status,
- *          and queue clearing. These callbacks are attached automatically by
- *          `StartTCP()` and `StartSerial()`.
- */
+/** @cond INTERNAL */
+
 template<>
 void Link::AttachCallbacks<Link>(Link* object)
 {
@@ -104,6 +100,8 @@ void Link::AttachCallbacks<Link>(Link* object)
         }
     );
 }
+
+/** @endcond */
 
 void Link::Spin()
 {

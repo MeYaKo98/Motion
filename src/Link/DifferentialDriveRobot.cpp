@@ -5,6 +5,8 @@
 
 namespace Motion {
 
+/** @cond INTERNAL */
+
 template <>
 void Link::AttachCallbacks<Motion::Core::Robot::GenericDifferentialDriveNavigation>(Motion::Core::Robot::GenericDifferentialDriveNavigationHandle& object)
 {   
@@ -28,5 +30,7 @@ void Link::AttachCallbacks<Motion::Core::Robot::DifferentialDriveNavigation>(Mot
 {
     AttachCallbacks<Motion::Core::Robot::GenericDifferentialDriveNavigation>((Motion::Core::Robot::GenericDifferentialDriveNavigationHandle&)object);
 }
+
+/** @endcond */
 
 } // namespace Motion

@@ -6,10 +6,10 @@ The examples directory contains small composition templates rather than board-sp
 
 | Template | Use it when |
 |---|---|
-| `MotionLinkTcpTemplate.cpp` | The robot accepts remote clients over TCP and mDNS discovery. |
-| `MotionLinkSerialTemplate.cpp` | The robot is controlled through a UART or other serial channel. |
-| `MotionLinkCustomCommandTemplate.cpp` | The application exposes a command outside the framework services. |
-| `CompleteDifferentialDriveMotionLink.cpp` | The application combines ESP32 hardware, odometry, controllers, navigation, Wi-Fi, and TCP Link. |
+| [`MotionLinkTcpTemplate.cpp`](MotionLinkTcpTemplate.cpp) | The robot accepts remote clients over TCP and mDNS discovery. |
+| [`MotionLinkSerialTemplate.cpp`](MotionLinkSerialTemplate.cpp) | The robot is controlled through a UART or other serial channel. |
+| [`MotionLinkCustomCommandTemplate.cpp`](MotionLinkCustomCommandTemplate.cpp) | The application exposes a command outside the framework services. |
+| [`CompleteDifferentialDriveMotionLink.cpp`](CompleteDifferentialDriveMotionLink.cpp) | The application combines ESP32 hardware, odometry, controllers, navigation, Wi-Fi, and TCP Link. |
 
 ## Template conventions
 
@@ -25,7 +25,7 @@ The templates intentionally use placeholder type names so they can be copied int
 
 ## Complete differential-drive template
 
-[CompleteDifferentialDriveMotionLink.cpp](CompleteDifferentialDriveMotionLink.cpp) follows the full application composition used by the reference ESP32 robot.
+[`CompleteDifferentialDriveMotionLink.cpp`](CompleteDifferentialDriveMotionLink.cpp) follows the full application composition used by the reference ESP32 robot.
 
 1. Creates the logger, motors, encoders, wheels, and odometry.
 2. Creates one PID controller per wheel.

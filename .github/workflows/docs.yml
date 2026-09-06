@@ -22,12 +22,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Cache APT packages
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-doxygen-graphviz-v1
-
       - name: Install Doxygen and Graphviz
         run: |
           sudo apt-get update

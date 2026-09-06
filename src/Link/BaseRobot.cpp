@@ -5,6 +5,8 @@
 
 namespace Motion {
 
+/** @cond INTERNAL */
+
 template <>
 void Link::AttachCallbacks<Motion::Core::Robot::BaseOdometry>(Motion::Core::Robot::BaseOdometryHandle& object)
 {
@@ -84,5 +86,7 @@ void Link::AttachCallbacks<Motion::Core::Robot::BaseNavigation>(Motion::Core::Ro
         }
     );
 }
+
+/** @endcond */
 
 }

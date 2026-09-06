@@ -45,14 +45,7 @@ An optional communication layer for connecting a robot to a remote client over T
 
 ## API reference
 
-- [Link API](_link_8h.html)
-- [Bridge types](_link_type_def_8h.html)
+- [Link API](@ref Link.h)
+- [Bridge types](@ref LinkTypeDef.h)
 
 The complete API is available through the generated class, namespace, and file indexes.
-
-## Examples
-
-- [Complete differential-drive template](CompleteDifferentialDriveMotionLink.cpp)
-- [TCP server template](MotionLinkTcpTemplate.cpp)
-- [Serial server template](MotionLinkSerialTemplate.cpp)
-- [Custom command template](MotionLinkCustomCommandTemplate.cpp)

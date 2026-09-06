@@ -4,6 +4,8 @@
 
 namespace Motion {
 
+/** @cond INTERNAL */
+
 template <>
 void Link::AttachCallbacks<Motion::Core::Robot::ExternalStopCondition>(Motion::Core::Robot::ExternalStopConditionHandle& object)
 {
@@ -17,5 +19,7 @@ void Link::AttachCallbacks<Motion::Core::Robot::ExternalStopCondition>(Motion::C
         }
     );
 }
+
+/** @endcond */
 
 }
