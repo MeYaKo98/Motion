@@ -133,8 +133,11 @@ enum class Status : uint16_t{
  *       `Motion::Bridge::Command` after validating or dispatching it.
  */
 struct Request {
+    /** @brief Numeric command identifier. */
     uint16_t command;
+    /** @brief Number of bytes stored in @ref data. */
     uint16_t length;
+    /** @brief Command-specific payload bytes. */
     uint8_t data[];
 };
 
@@ -149,8 +152,11 @@ struct Request {
  *       frame size.
  */
 struct Response {
+    /** @brief Result or queue acknowledgement for the request. */
     Motion::Bridge::Status status;
+    /** @brief Number of bytes stored in @ref data. */
     uint16_t length;
+    /** @brief Command-specific response payload bytes. */
     uint8_t data[];
 };
 
@@ -161,8 +167,11 @@ struct Response {
  *          radians.
  */
 struct Position {
+    /** @brief X coordinate in the odometry coordinate units. */
     float x;
+    /** @brief Y coordinate in the odometry coordinate units. */
     float y;
+    /** @brief Heading angle, typically in radians. */
     float theta;
 };
 
@@ -171,7 +180,9 @@ struct Position {
  * @details The point uses the same coordinate units as the robot odometry.
  */
 struct Point {
+    /** @brief X coordinate in the odometry coordinate units. */
     float x;
+    /** @brief Y coordinate in the odometry coordinate units. */
     float y;
 };
 

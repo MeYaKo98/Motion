@@ -15,11 +15,17 @@
 #include <unordered_map>
 #include <functional>
 
+/** @brief TCP listening port used by the Motion Link server. */
 #define MotionLinkTCPPort 9500
+
+/** @brief mDNS service name advertised by the TCP Link server. */
 #define MotionLinkMdnsService "MotionLink"
 
+/** @brief Maximum request or response buffer size in bytes. */
 #define COMMAND_MAX_LENGTH            64
-#define COMMAND_QUEUE_SIZE            8 
+
+/** @brief Maximum number of slow requests waiting in the FreeRTOS queue. */
+#define COMMAND_QUEUE_SIZE            8
 
 namespace Motion {
 
@@ -328,18 +334,28 @@ public:
 
 private:
 
-
+    /** @brief Constructs the singleton Link state and its slow-command queue. */
     Link();
 
+    /** @brief Returns the process-wide Link instance. */
     static Link& GetInstance();
-    
+
+    /**
+     * @brief FreeRTOS entry point that executes queued slow callbacks.
+     * @param pvParameters Reserved FreeRTOS task parameter; currently unused.
+     */
     static void SlowCommandTask(void* pvParameters);
 
+    /** @brief The single active TCP or serial transport. */
     Motion::Core::IO::BaseChannelHandle _channel;
 
+    /** @brief Registry of callbacks executed immediately in the receive loop. */
     std::unordered_map<uint16_t, FastCallbackPtr> _fastCallbackRegistry;
+
+    /** @brief Registry of callbacks dispatched through the slow-command task. */
     std::unordered_map<uint16_t, SlowCallbackPtr> _slowCallbackRegistry;
 
+    /** @brief FreeRTOS queue storing copied slow-command request frames. */
     QueueHandle_t _slowCommandQueue;
 };
 

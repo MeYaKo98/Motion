@@ -76,8 +76,8 @@ void DifferentialDriveNavigation::Move(float distance)
         commandR = _motorConfig.rightControllerHandle->GenerateCommand(goalVr, currentState.rightEncoderSpeed);
         commandL = _motorConfig.leftControllerHandle->GenerateCommand(goalVl, currentState.leftEncoderSpeed);
         
-        //LOG_INFO("d_r:%f, d_l:%f, v_r:%f, v_l:%f, c_r:%f, c_l:%f", currentState.rightDistance, currentState.leftDistance, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
-        LOG_TRACE("c:%f, v_r:%f, v_l:%f, cr:%f, cl:%f", goalV, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
+        //LOG_TRACE("d_r:%f, d_l:%f, v_r:%f, v_l:%f, c_r:%f, c_l:%f", currentState.rightDistance, currentState.leftDistance, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
+        //LOG_TRACE("c:%f, v_r:%f, v_l:%f, cr:%f, cl:%f", goalV, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
 
         // Send commands to motors
         _motorConfig.rightMotorHandle->SetCommand(commandR);
@@ -151,8 +151,8 @@ void DifferentialDriveNavigation::Turn(float angle)
         commandR = _motorConfig.rightControllerHandle->GenerateCommand(goalVr, currentState.rightEncoderSpeed);
         commandL = _motorConfig.leftControllerHandle->GenerateCommand(goalVl, currentState.leftEncoderSpeed);
 
-        //LOG_INFO("d_r:%f, d_l:%f, v_r:%f, v_l:%f, c_r:%f, c_l:%f", currentState.rightDistance, currentState.leftDistance, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
-        LOG_TRACE("c:%f, v_r:%f, v_l:%f, cr:%f, cl:%f", goalV, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
+        //LOG_TRACE("d_r:%f, d_l:%f, v_r:%f, v_l:%f, c_r:%f, c_l:%f", currentState.rightDistance, currentState.leftDistance, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
+        //LOG_TRACE("c:%f, v_r:%f, v_l:%f, cr:%f, cl:%f", goalV, currentState.rightEncoderSpeed, currentState.leftEncoderSpeed, commandR, commandL);
 
         // Send commands to motors
         _motorConfig.rightMotorHandle->SetCommand(commandR);
