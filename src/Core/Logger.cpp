@@ -5,7 +5,7 @@
 
 namespace Motion::Core {
 
-bool Logger::Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel minLevel, uint32_t queueSize)
+bool Logger::Start(Motion::Core::IO::BaseChannelHandle channelHandle, LogLevel minLevel, uint32_t queueSize)
 {
     if (_msgQueue != nullptr)
     {

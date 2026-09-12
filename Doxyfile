@@ -1504,6 +1504,8 @@ HTML_EXTRA_FILES       = examples/MotionLinkTcpTemplate.cpp \
                          examples/MotionLinkSerialTemplate.cpp \
                          examples/MotionLinkCustomCommandTemplate.cpp \
                          examples/CompleteDifferentialDriveMotionLink.cpp \
+                         examples/ESP32SerialLogging.cpp \
+                         examples/ESP32TCPLogging.cpp \
                          docs/images/logo.svg
 
 # The HTML_COLORSTYLE tag can be used to specify if the generated HTML output

@@ -64,7 +64,7 @@ public:
      * @remark It is recommended to use the helper macros.
      * @see LOG_START
      */
-    bool Start(Motion::Core::IO::BaseChannelHandle& channelHandle, LogLevel minLevel = LogLevel::INFO, uint32_t queueSize = 30);
+    bool Start(Motion::Core::IO::BaseChannelHandle channelHandle, LogLevel minLevel = LogLevel::INFO, uint32_t queueSize = 30);
 
     /**
      * @brief Queues a log message for processing.

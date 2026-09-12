@@ -39,7 +39,6 @@ void AttachSlowOperation(uint16_t command)
         {
             // Validate request->length before reading request->data.
             // Long-running work belongs here, outside the receive loop.
-            (void)request;
         });
 }
 

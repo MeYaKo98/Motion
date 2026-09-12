@@ -189,7 +189,8 @@ void DifferentialDriveNavigation::Orient(float angle)
     float goal = angle - position.theta;
     if (goal>M_PI) goal -= 2*M_PI;
     if (goal<-M_PI) goal += 2*M_PI;
-    return Turn(goal);
+    if (goal != 0.0f)
+        Turn(goal);
 }
 
 }
