@@ -36,13 +36,21 @@ void PIDController::Reset() {
 float PIDController::GenerateCommand(float reference, float reading) {
     // Calculate error from reference and reading
     float error = reference - reading;
-    float command = 0;
-    
-    // Accumulate error for integral term
-    _integral += error;
-    
-    // Calculate PID output
-    command = _coefficient.Kp * error + _coefficient.Ki * _integral + _coefficient.Kd * (error - _lastError);
+    float derivative = error - _lastError;
+    float candidateIntegral = _integral + error;
+    float candidateCommand = _coefficient.Kp * error
+        + _coefficient.Ki * candidateIntegral
+        + _coefficient.Kd * derivative;
+
+    // Do not integrate farther into saturation, but allow the integral to unwind.
+    if (!((candidateCommand > _maxCommand && error > 0.0f) ||
+          (candidateCommand < _minCommand && error < 0.0f)))
+        _integral = candidateIntegral;
+
+    // Calculate PID output using the accepted integral value.
+    float command = _coefficient.Kp * error
+        + _coefficient.Ki * _integral
+        + _coefficient.Kd * derivative;
     
     // Update last error for derivative calculation
     _lastError = error;

@@ -10,6 +10,8 @@ The examples directory contains small composition templates rather than board-sp
 | [`MotionLinkSerialTemplate.cpp`](MotionLinkSerialTemplate.cpp) | The robot is controlled through a UART or other serial channel. |
 | [`MotionLinkCustomCommandTemplate.cpp`](MotionLinkCustomCommandTemplate.cpp) | The application exposes a command outside the framework services. |
 | [`CompleteDifferentialDriveMotionLink.cpp`](CompleteDifferentialDriveMotionLink.cpp) | The application combines ESP32 hardware, odometry, controllers, navigation, Wi-Fi, and TCP Link. |
+| [`ESP32SerialLogging.cpp`](ESP32SerialLogging.cpp) | The ESP32 logger writes diagnostic messages over USB serial. |
+| [`ESP32TCPLogging.cpp`](ESP32TCPLogging.cpp) | The ESP32 logger writes diagnostic messages to a TCP client over Wi-Fi. |
 
 ## Template conventions
 
@@ -36,3 +38,9 @@ The templates intentionally use placeholder type names so they can be copied int
 7. Enters the blocking Link receive loop.
 
 The file is a board template. Replace GPIO assignments, calibration values, and the Wi-Fi placeholders before deploying. Never commit real network credentials.
+
+## ESP32 logging templates
+
+[`ESP32SerialLogging.cpp`](ESP32SerialLogging.cpp) is a standalone serial logger using `Serial` at 115200 baud.
+
+[`ESP32TCPLogging.cpp`](ESP32TCPLogging.cpp) is a standalone Wi-Fi logger using an `ESP32TCP` server on port 9501. It waits for a client before starting the logger because the ESP32 TCP channel does not buffer messages while no client is connected. Replace the Wi-Fi placeholders through build flags or a private configuration file, and keep credentials out of source control.

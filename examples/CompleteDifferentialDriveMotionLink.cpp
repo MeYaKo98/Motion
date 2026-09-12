@@ -87,11 +87,10 @@ BaseProfileGeneratorHandle profileGeneratorHandle =
         Configuration::MaximumAcceleration,
         Configuration::MaximumVelocity,
         Configuration::MinimumVelocity);
-BaseStopConditionHandle settleCondition =
-    SettleStopCondition::Create(5.0f, 1);
-BaseStopConditionHandle oscillationCondition =
-    OscillationStopCondition::Create(3);
-BaseStopConditionHandle stopCondition = settleCondition || oscillationCondition;
+BaseStopConditionHandle settleCondition = SettleStopCondition::Create(5.0f, 1);
+BaseStopConditionHandle oscillationCondition = OscillationStopCondition::Create(3);
+ExternalStopConditionHandle externalCondition = ExternalStopCondition::Create();
+BaseStopConditionHandle stopCondition = settleCondition || oscillationCondition || (BaseStopConditionHandle)externalCondition;
 
 // Complete differential-drive navigation service.
 DifferentialDriveNavigationHandle robotNavigationHandle =
@@ -145,6 +144,9 @@ void setup()
     // Expose GetDrive, GetPosition, MoveTo, Orient, Move, Turn, and Stop.
     Motion::Link::AttachCallbacks<DifferentialDriveNavigation>(
         robotNavigationHandle);
+    Motion::Link::AttachCallbacks<ExternalStopCondition>(
+        externalCondition
+    );
 
     // Spin is the blocking Motion Link receive task.
     Motion::Link::Spin();

@@ -23,14 +23,7 @@ struct PIDCoefficient {
      *  Must be >= 0.
      */
     float Kp;
-    
-    /** @brief Derivative gain constant (Kd).
-     *  Increases damping and reduces overshoot.
-     *  Typical range: 0.0 to 10.0 (application-dependent).
-     *  Must be >= 0.
-     */
-    float Kd;
-    
+
     /** @brief Integral gain constant (Ki).
      *  Eliminates steady-state error but may cause slow response.
      *  Can lead to integral windup if not properly saturated.
@@ -38,6 +31,13 @@ struct PIDCoefficient {
      *  Must be >= 0.
      */
     float Ki;
+    
+    /** @brief Derivative gain constant (Kd).
+     *  Increases damping and reduces overshoot.
+     *  Typical range: 0.0 to 10.0 (application-dependent).
+     *  Must be >= 0.
+     */
+    float Kd;
 };
 
 class PIDController;
@@ -116,11 +116,12 @@ public:
      *          from the difference between reference and reading. The algorithm performs
      *          the following steps:
      *          1. Calculate error: `error = reference - reading`
-     *          2. Accumulate error: `_integral += error`
-     *          3. Calculate output: `Output = (Kp * error) + (Ki * _integral) + (Kd * (error - _lastError))`
-     *          4. Saturation clamping: clamp output to [_minCommand, _maxCommand]
-     *          5. Update state: `_lastError = error`
-     *          6. Return clamped output
+     *          2. Calculate a candidate integral and output.
+     *          3. Accumulate the error unless it would drive a saturated output farther into saturation.
+     *          4. Calculate output: `Output = (Kp * error) + (Ki * _integral) + (Kd * (error - _lastError))`
+     *          5. Saturation clamping: clamp output to [_minCommand, _maxCommand]
+     *          6. Update state: `_lastError = error`
+     *          7. Return clamped output
      *
      * @param reference The target setpoint or desired value.
      *                  Example: desired speed, target position, etc.
@@ -140,9 +141,9 @@ public:
      * output = clamp(output, min, max)
      * @endcode
      *
-     * @note **Integral Windup Prevention:** The output is saturated before returning. This prevents
-     *       unlimited accumulation of the integral term. For enhanced anti-windup, derived classes
-     *       could implement conditional integral accumulation (accumulated only when output is not saturated).
+    * @note **Integral Windup Prevention:** Conditional integration is used. The integral is not
+    *       increased when doing so would drive the candidate output farther beyond its limits,
+    *       but it is allowed to unwind when the error drives the output back toward the valid range.
      *
      * @note **Frequency Assumption:** This algorithm assumes constant sampling time (call frequency).
      *       If the call frequency varies, consider using time-normalized integral and derivative terms.
@@ -193,9 +194,8 @@ protected:
 
     /** @brief The accumulated error over time, used for the integral term.
      *  Initialized to 0.0f in the constructor.
-     *  Incremented at the beginning of each `GenerateCommand()` call by the current error.
-     *  Can grow unbounded without saturation (handled by output clamping).
-     *  Consider conditional accumulation (only when output is not saturated) for better anti-windup.
+     *  Updated by `GenerateCommand()` unless the candidate output is saturated and the current
+     *  error would drive it farther into saturation. This conditional integration prevents windup.
      *  Reset to 0.0f by calling `Reset()`.
      */
     float _integral;
